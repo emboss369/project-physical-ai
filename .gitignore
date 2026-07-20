@@ -216,3 +216,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Claude Code
+# Local user settings (ユーザー固有の設定、API キーなど秘密情報を含む可能性あり)
+.claude/settings.local.json
