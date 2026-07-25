@@ -1,8 +1,13 @@
 # 動画スクリプト｜Physical AI 研究ノート #2
 
-**仮タイトル案**
 - 激安BTO、届いたその日に画面が映らなくなった件｜Physical AI 研究ノート #2
-- ClaudeにPC選んでもらったら激安すぎて逆に不安だった｜Physical AI 研究ノート #2
+
+https://youtu.be/zPsXR1w8Z10
+
+前回：目の前で動くR1に触ったら、想像と全然違った｜Physical AI 研究ノート #1
+https://youtu.be/V0NzXl-20Zk
+
+
 
 （CONVENTIONS.md準拠：中身が先、シリーズ名と番号は後ろ）
 
