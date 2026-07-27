@@ -220,3 +220,6 @@ __marimo__/
 # Claude Code
 # Local user settings (ユーザー固有の設定、API キーなど秘密情報を含む可能性あり)
 .claude/settings.local.json
+
+# LeRobot動作確認用の一時出力（カメラキャプチャ画像など）
+outputs/
