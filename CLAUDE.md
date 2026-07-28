@@ -10,3 +10,12 @@
 - Build Log テンプレートは CONVENTIONS と system prompt の型に従う
 - 固有名詞は @GLOSSARY.md の表記に統一する（字幕・記事の修正時）
 - 発信品質ルール：事実・予測・ビジョンを峻別。数値は出典・通貨・期間を明記。断定しない。
+
+## プロジェクトの公開先
+
+- **GitHub**: https://github.com/emboss369/project-physical-ai
+  - Build Log・コードの本体。日々のcommit/push先はここ
+- **YouTube**: https://www.youtube.com/channel/UCQk_iKo7elYMTtI1qWxS3Gg
+  - 「Physical AI 研究ノート」「Road to Folding a T-shirt」「Failure Log」を配信。README等にリンクを貼る際はここを参照
+- **X**: https://x.com/PrjPhysicalAI
+  - 動画公開後の短文展開先（CONVENTIONS.mdの展開ルール参照：動画→記事→X→LinkedIn）。Build Log単体からは直接投稿しない
