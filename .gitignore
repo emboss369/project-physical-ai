@@ -220,3 +220,17 @@ __marimo__/
 # Claude Code
 # Local user settings (ユーザー固有の設定、API キーなど秘密情報を含む可能性あり)
 .claude/settings.local.json
+CLAUDE.local.md
+
+# 生成AIコーディングツール全般（ローカル設定・会話履歴・キャッシュ）
+# 現時点で未使用のツール分も含め、将来の混入を防ぐために先回りして記載
+.cursor/
+.windsurf/
+.continue/
+.clinerules/
+.roo/
+.aider*
+.cody/
+
+# LeRobot動作確認用の一時出力（カメラキャプチャ画像など）
+outputs/
