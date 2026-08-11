@@ -1,0 +1,22 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "vllm": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "vLLM Provider",
+      "options": {
+        "baseURL": "http://localhost:8000/v1",
+        "apiKey": "dummy"
+      },
+      "models": {
+        "qwen": {
+          "name": "qwen",
+          "limit": {
+            "context": 8192,
+            "output": 1024
+          }
+        }
+      }
+    }
+  }
+}
