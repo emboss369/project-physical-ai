@@ -102,6 +102,11 @@ uv pip install --dry-run -e .
 
 LeRobotの`pyproject.toml`側でtorchのバージョン制約がすでに新しく（cu128自動選択される水準に）更新されていることを確認。結果、`torch==2.11.0+cu128`が自動的に選択されることが判明したため、PyTorchを個別に前もって固定するステップは不要と判断（当初「依存解決で古いバージョンが選ばれるリスク」を懸念していたが、dry-run確認により杞憂と判明）。
 
+cu130を使う場合は、
+
+uv pip install torch==2.11.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/cu130
+
+
 **LeRobot本体のインストール**：
 
 ```bash

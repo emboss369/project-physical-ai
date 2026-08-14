@@ -102,6 +102,7 @@ USBから起動 → Try or Install Ubuntu
 
 事前調査で、RTX 5060 Ti（Blackwell世代）はUbuntu 24.04でドライバ560/575/580系列すべてが`nvidia-smi: No devices were found`や`Failed to allocate NvkmsKapiDevice`エラーで失敗する報告が複数（NVIDIA公式フォーラム等）確認できていたため、警戒しながら作業した。
 
+これは実行しなかった。既にドライバ入っていた
 ```bash
 sudo apt update && sudo apt upgrade -y
 ubuntu-drivers devices
