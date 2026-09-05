@@ -10,6 +10,7 @@ Open-LLM-VTuber をベースにした、Project Physical AI の相棒AIキャラ
 | `sakura_midori.v1-full.yaml` | 長文版ペルソナ（1,683字／1,246トークン）の退避。Build Log #012 で短縮版（348字／260トークン）に差し替えた際のバックアップ。現行は絵文字ルール等を足して777字。人格が薄いと感じたらここから1行ずつ戻す |
 | `voice/` | 佐倉みどりのリファレンス音声（Irodori-TTS のクローン元）。**ここが正**で、Irodori-TTS-Server 側の `voices/sakura_midori.wav` はここへのシンボリックリンク。出どころは `voice/README.md` |
 | `patches/` | 本家 Open-LLM-VTuber に加えた改修の diff バックアップ |
+| `start-midori.sh` | 起動スクリプト。TTS → LLM 事前ロード → バックエンド → Electron を一発で立ち上げる（`--check` / `--no-app` / `--no-warm`） |
 
 `sakura_midori.yaml` を編集したら、**必ずパースを通してから起動する**（Build Log #012 で
 インデント破損に気づかず起動して落ちた）。
@@ -186,7 +187,63 @@ MIT ライセンス・リアルタイム相当の速度・ゼロショット音�
 
 ## 起動手順
 
-### TTS サーバー（先に起動しておく）
+### いつもの起動：スクリプト1本
+
+```bash
+~/Develop/project-physical-ai/ConversationalAI/start-midori.sh
+```
+
+Irodori-TTS → LLM の事前ロード → バックエンド → Electron（ペットモード）まで一気に立ち上げる。
+**Ctrl+C か Electron を閉じると、このスクリプトが起動したサーバーも一緒に止まる。**
+
+| オプション | 動作 |
+|---|---|
+| （なし） | Electron まで起動 |
+| `--check` | 起動せず、3プロセスの生死だけ表示 |
+| `--no-app` | Electron を起動しない（ブラウザで使うとき） |
+| `--no-warm` | LLM の事前ロードをしない |
+
+性質：
+
+- **すでに動いているサーバーは再利用し、終了時にも止めない。** 自分で起動したものだけ片付ける
+- ログは `~/.local/state/sakura-midori/{irodori,vtuber}.log`
+- 起動時に `voices/` のリファレンス音声が無ければ警告する（声が毎回変わる状態の検知）
+- LLM を事前に VRAM へ載せるので、最初の応答からロード待ちが無い
+
+以下は、スクリプトが何をしているかの内訳。手で追うときや、詰まったときの参照用。
+
+---
+
+**佐倉みどりを起動する = プロセス3つ。** うち Ollama は systemd で自動起動しているので、
+実際に手で叩くのは2つ（TTS サーバーとバックエンド）＋ 画面（ブラウザか Electron）。
+
+| # | プロセス | ポート | 手で起動する？ |
+|---|---|---|---|
+| 1 | Ollama（LLM `qwen3-vl-8k`） | 11434 | **不要**（systemd で自動起動・常駐） |
+| 2 | Irodori-TTS-Server（音声） | 8088 | **必要** |
+| 3 | Open-LLM-VTuber バックエンド | 12393 | **必要** |
+| 4 | 画面（ブラウザ or Electron ペットモード） | — | どちらか |
+
+起動前・起動後の一括確認：
+
+```bash
+curl -s http://localhost:11434/api/tags >/dev/null && echo "✅ Ollama"      || echo "❌ Ollama"
+curl -s http://localhost:8088/health    >/dev/null && echo "✅ Irodori-TTS" || echo "❌ Irodori-TTS"
+curl -s http://localhost:12393          >/dev/null && echo "✅ VTuber"      || echo "❌ VTuber"
+```
+
+### 1. Ollama（起動不要・確認のみ）
+
+systemd サービスとして自動起動する。手で起動する必要はない。
+
+```bash
+systemctl is-active ollama   # active ならOK
+ollama ps                    # 空でも問題ない。最初のリクエストでロードされる
+```
+
+止まっていたときだけ `sudo systemctl start ollama`。
+
+### 2. TTS サーバー（先に起動しておく）
 
 ```bash
 cd ~/development/Irodori-TTS-Server
@@ -194,19 +251,26 @@ uv run --no-sync python -m irodori_openai_tts --host 0.0.0.0 --port 8088
 curl http://localhost:8088/health   # 別ターミナルで確認
 ```
 
-**これを起動していないと音声が出ない。**
+**これを起動していないと音声が出ない。** このターミナルは開いたままにする。
 
-### バックエンド
+### 3. バックエンド
 
 ```bash
 cd ~/development/open-llm-vtuber-lab/Open-LLM-VTuber
 uv run run_server.py
 ```
 
+### 4a. ブラウザで開く
+
+```
+http://localhost:12393
+```
+
 起動直後のキャラクターは `conf.yaml` の `character_config` 依存で、現在は既定の
 `Mao`（英語ペルソナ）。**Setting → `Character Preset` → 佐倉みどり** で切り替える。
+毎回の切り替えが面倒になったら、バックログの「起動時デフォルトを佐倉みどりに戻す」を行う。
 
-### Electron版（Desktop Pet Mode）
+### 4b. Electron版（Desktop Pet Mode）
 
 ```bash
 cd ~/development/open-llm-vtuber-lab/Open-LLM-VTuber-Web/release/1.2.1/linux-unpacked
