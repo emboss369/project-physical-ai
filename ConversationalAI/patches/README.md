@@ -41,7 +41,7 @@ python3 や X が無い環境では従来の `getCursorScreenPoint()` 方式へ�
 
 ```bash
 cd ~/development/open-llm-vtuber-lab/Open-LLM-VTuber-Web
-git apply /mnt/data/git/project-physical-ai/ConversationalAI/patches/open-llm-vtuber-web-linux-pet-mode.patch
+git apply ~/Develop/project-physical-ai/ConversationalAI/patches/open-llm-vtuber-web-linux-pet-mode.patch
 ```
 
 すでに適用済みかの確認（適用済みなら成功する）:

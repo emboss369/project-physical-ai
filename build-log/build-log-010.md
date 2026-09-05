@@ -1006,3 +1006,53 @@ env -u ELECTRON_RUN_AS_NODE ./open-llm-vtuber
 **実機確認**：起動直後から佐倉みどりが選択され、応答文も関西弁になっていることを確認した。一方、設定している `ja-JP-NanamiNeural` の音声は標準的な日本語音声で、関西弁のイントネーションにはならない。テキスト上の人格・語尾は反映済みで、方言らしい発音を得るには関西弁対応の音声モデルまたはTTSサービスを別途検討する必要がある。
 
 注意：`conf.yaml` 自体も佐倉みどり、`characters/sakura_midori.yaml` も佐倉みどりを指すため、設定メニューには同名の候補が重複表示される可能性がある。
+
+---
+
+## 追記 — 2026-09-05：素の端末で起動すると `chrome-sandbox` で落ちる
+
+PC を再インストールしたら `Open-LLM-VTuber-Web` がディレクトリごと消えていたため、本文の手順で再セットアップした（Node.js / nvm も消えていたのでそこから）。`git clone` した HEAD が `patches/README.md` に記録したベースコミット `d176e7d` と一致し、Linux ペットモードのパッチはそのまま当たった。**ベースコミットを控えておいたことが効いた。**
+
+ビルドは通ったが、**素の端末から起動すると FATAL で落ちた。**
+
+```
+$ env -u ELECTRON_RUN_AS_NODE ./open-llm-vtuber
+[97634:...:FATAL:setuid_sandbox_host.cc(158)] The SUID sandbox helper binary was found,
+but is not configured correctly. Rather than run without sandboxing I'm aborting now.
+You need to make sure that .../chrome-sandbox is owned by root and has mode 4755.
+Trace/breakpoint trap (コアダンプ)
+```
+
+Chromium はサンドボックスを2段構えで張る。まず namespace サンドボックス（非特権ユーザー名前空間）を試し、失敗すると SUID ヘルパー `chrome-sandbox` にフォールバックする。ところが `electron-builder` が `linux-unpacked/` に吐く `chrome-sandbox` には setuid ビットも root 所有権も付いていない。Chromium は「サンドボックス無しで走るくらいなら中止する」設計なので、そこで abort する。
+
+### これは「壊れた」のではない
+
+**本文 `### 10` の時点でも `chrome-sandbox` は `-rwxr-xr-x 1 hiro hiro` だった**（当時の `ls` 出力がそのまま残っている）。権限は最初から不足していたのに、当時はウィンドウが出ている。
+
+差は**どのシェルから起動したか**にある。本文の起動確認も、今回の再ビルド直後の確認も、どちらも Claude Code の Bash ツール経由＝VS Code 拡張ホスト由来のシェル（`ELECTRON_RUN_AS_NODE=1` と `VSCODE_PID` が見える環境）で行っていた。そこでは namespace サンドボックスが成立し、SUID フォールバックまで到達しない。**素の端末から起動したのは今回が初めてで、元からあった地雷を初めて踏んだ**というのが実態。
+
+なお Ubuntu 24.04 は `kernel.apparmor_restrict_unprivileged_userns = 1`（実測）で非特権ユーザー名前空間を制限している。ただし Bash ツール側のシェルでは `unshare -U true` が `EXIT=0` で通っており、**素の端末側で名前空間の作成が実際に拒否されているかは未確認**。「素の端末では namespace サンドボックスが張れず SUID に落ちる」までは症状から確実だが、その拒否理由が AppArmor の当該設定かどうかは未検証。
+
+### 対処
+
+```bash
+cd ~/development/open-llm-vtuber-lab/Open-LLM-VTuber-Web/release/1.2.1/linux-unpacked
+sudo chown root:root chrome-sandbox
+sudo chmod 4755 chrome-sandbox
+ls -la chrome-sandbox        # -rwsr-xr-x 1 root root になればOK
+env -u ELECTRON_RUN_AS_NODE ./open-llm-vtuber
+```
+
+**実機確認**：素の端末から起動できた。
+
+これは Electron 公式が案内している方法であり、`deb` パッケージの `postinst` も内部で同じことをしている（`dpkg-deb -e` で中身を確認したところ `# SUID chrome-sandbox for Electron 5+` のコメント付きで `chmod 4755` していた）。`deb` をインストールすれば自動で解決するが、パッチを当てて再ビルドする開発サイクルとは相性が悪いので `linux-unpacked` を直接叩く方針は維持する。
+
+**注意：`npm run build:linux` のたびに `chrome-sandbox` は作り直され、権限も戻る。再ビルド後は毎回この2行が必要。**
+
+`--no-sandbox` でも起動はするが、サンドボックスを丸ごと無効化するので常用しない。
+
+### 学んだこと
+
+- **「動作確認した」と言えるのは、実際に使う経路で確認したときだけ。** ツール経由のシェルで起動して「動いた」と判断したのは、本文のときも今回も同じ誤り。環境変数だけでなく**サンドボックスの成立可否まで**シェルによって変わる
+- 本文の教訓「開発環境が環境変数を汚染する」の続編。VS Code 由来のシェルは `ELECTRON_RUN_AS_NODE` を足すだけでなく、**Electron が落ちるはずの場所で落ちなくさせてもいた**
+- ログに残した `ls -la` の出力が、1ヶ月後に「元から権限は不足していた」を証明する証拠になった。**症状が出ていない時点の状態を書き残しておくと、後から差分が取れる**
