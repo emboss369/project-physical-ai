@@ -1,0 +1,84 @@
+--- /tmp/claude-1000/-home-hiro-Develop-project-physical-ai/bc68205f-8bbc-47a5-8669-67b43f8c05d0/scratchpad/sentence_divider.py.orig	2026-09-04 22:38:18.441535016 +0900
++++ src/open_llm_vtuber/utils/sentence_divider.py	2026-09-05 12:20:43.921165235 +0900
+@@ -170,6 +170,46 @@
+     return any(punct in text for punct in END_PUNCTUATIONS)
+ 
+ 
++def is_speakable(text: str) -> bool:
++    """
++    Return False for fragments that carry no readable text, e.g. a segment that
++    is nothing but emoji, whitespace or punctuation.
++
++    Irodori-TTS uses emoji as delivery/emotion annotations for the sentence they
++    sit in, so an emoji that gets split into its own segment is both useless and
++    harmful: it is sent to the TTS as a standalone utterance and the sentence it
++    was meant to modify loses its annotation. See Build Log #013.
++    """
++    for ch in text:
++        if ch.isalnum():
++            return True
++    return False
++
++
++def merge_unspeakable_segments(
++    sentences: List[str], remaining: str = ""
++) -> Tuple[List[str], str]:
++    """
++    Fold emoji-only (or punctuation-only) fragments back into the sentence that
++    precedes them, so they stay attached to the text they annotate.
++
++    A fragment with no preceding sentence is kept as-is; the caller's buffering
++    will merge it with whatever arrives next.
++    """
++    merged: List[str] = []
++    for sent in sentences:
++        if merged and not is_speakable(sent):
++            merged[-1] = f"{merged[-1]}{sent}"
++        else:
++            merged.append(sent)
++
++    if merged and remaining and not is_speakable(remaining):
++        merged[-1] = f"{merged[-1]}{remaining}"
++        remaining = ""
++
++    return merged, remaining
++
++
+ def segment_text_by_regex(text: str) -> Tuple[List[str], str]:
+     """
+     Segment text into complete sentences using regex pattern matching.
+@@ -207,7 +247,7 @@
+         complete_sentences.append(potential_sentence)
+         remaining_text = remaining_text[end_pos:].lstrip()
+ 
+-    return complete_sentences, remaining_text
++    return merge_unspeakable_segments(complete_sentences, remaining_text)
+ 
+ 
+ def segment_text_by_pysbd(text: str) -> Tuple[List[str], str]:
+@@ -255,6 +295,10 @@
+             # Use regex for unsupported languages
+             return segment_text_by_regex(text)
+ 
++        complete_sentences, remaining = merge_unspeakable_segments(
++            complete_sentences, remaining
++        )
++
+         logger.debug(
+             f"Processed sentences: {complete_sentences}, Remaining: {remaining}"
+         )
+@@ -534,7 +578,13 @@
+         async for sentence in self._process_buffer():
+             yield sentence
+ 
+-        # After processing standard structures, if anything is left, yield it as a final fragment
++        # After processing standard structures, if anything is left, yield it as a final fragment.
++        # A leftover with nothing readable in it (a trailing emoji, say) is dropped rather than
++        # sent to the TTS as a standalone utterance. See Build Log #013.
++        if self._buffer.strip() and not is_speakable(self._buffer):
++            logger.debug(f"Dropping unspeakable trailing fragment: '{self._buffer.strip()}'")
++            self._buffer = ""
++
+         if self._buffer.strip():
+             logger.debug(
+                 f"Yielding final fragment from buffer: '{self._buffer.strip()}'"

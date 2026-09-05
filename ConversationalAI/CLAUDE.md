@@ -7,17 +7,27 @@ Open-LLM-VTuber をベースにした、Project Physical AI の相棒AIキャラ
 | ファイル | 役割 |
 |---|---|
 | `sakura_midori.yaml` | 佐倉みどりのキャラクター設定。**ここが正**で、Open-LLM-VTuber 側の `characters/sakura_midori.yaml` はここへのシンボリックリンク |
+| `sakura_midori.v1-full.yaml` | 長文版ペルソナ（1,683字／1,246トークン）の退避。Build Log #012 で短縮版（348字／260トークン）に差し替えた際のバックアップ。現行は絵文字ルール等を足して777字。人格が薄いと感じたらここから1行ずつ戻す |
+| `voice/` | 佐倉みどりのリファレンス音声（Irodori-TTS のクローン元）。**ここが正**で、Irodori-TTS-Server 側の `voices/sakura_midori.wav` はここへのシンボリックリンク。出どころは `voice/README.md` |
 | `patches/` | 本家 Open-LLM-VTuber に加えた改修の diff バックアップ |
+
+`sakura_midori.yaml` を編集したら、**必ずパースを通してから起動する**（Build Log #012 で
+インデント破損に気づかず起動して落ちた）。
+
+```bash
+cd ~/development/open-llm-vtuber-lab/Open-LLM-VTuber
+uv run python -c "import yaml; yaml.safe_load(open('characters/sakura_midori.yaml'))"
+```
 
 本家リポジトリは `conf.yaml` と `characters/*` を `.gitignore` で除外しているため、
 設定をあちらに置くとどこにも残らない。必ずこちら側を正にする。
 
-## 現在の構成（Build Log #007・#010 時点）
+## 現在の構成（Build Log #013 時点）
 
 | 要素 | 設定 |
 |---|---|
-| LLM | Ollama `qwen2.5:latest` / temperature 0.9 |
-| TTS | edge_tts `ja-JP-NanamiNeural` |
+| LLM | Ollama `qwen3-vl-8k` / temperature 0.9（Build Log #013。`qwen3-vl:8b-instruct` ベース、vision 対応・thinking 無し・`num_ctx 8192`） |
+| TTS | **Irodori-TTS**（`Aratako/Irodori-TTS-v4-Small`）を OpenAI 互換サーバー経由（`localhost:8088`）。voice は `sakura_midori`（Build Log #013） |
 | ASR | sherpa-onnx（SenseVoiceSmall、CPU推論） |
 | Live2Dモデル | `mao_pro`（Live2Dオリジナルキャラクター「Mao Niziiro」） |
 | 実行形態 | Electron 版をソースビルド（Linux バイナリは公式配布なし） |
@@ -52,30 +62,44 @@ This content uses sample data owned and copyrighted by Live2D Inc.
 
 ### 次にやる候補（着手条件が揃っているもの）
 
-- **佐倉みどりの会話テスト**。ペルソナを投入して起動するところまでは完了して
-  いるが、まだ一度も喋らせていない。ペットモードで右クリック →
-  `Switch Character` → 佐倉みどり で切り替え、新規会話でリセットしてから確認する。
-  見るポイント：関西弁の濃さ、脱線の頻度、「ドクター」→「師匠」の切り替わりが
-  発動するか、日本語以外が混ざらないか
+- **佐倉みどりの会話テスト**。Build Log #012 で、Setting → `Character Preset` →
+  佐倉みどり を選び、日本語で会話できるところまでは確認済み（短縮版ペルソナ）。
 
-- **Ollama の `num_ctx` 引き上げ**。Ollama はデフォルトで `num_ctx` が 2048
-  トークンに制限されており、モデル自体が128k対応でも黙って切り捨てられる。
-  佐倉みどりの persona_prompt は長め（約1,700文字）なので、人格定義が
-  途中で欠ける可能性がある。Modelfile で引き上げる：
+  対応済み：
+  - **関西弁を削除**し、標準語のフランク調に統一（口調ルール本体と例文の語尾・
+    一人称。長文版 `sakura_midori.v1-full.yaml` も同時に修正）
+  - **話者混同**。自分を「みどりちゃん」と呼んで相手扱いする誤りが出た
+    （実例：「[smirk] みどりちゃん、頑張ってね！」）。引き金は口癖
+    「いつか、みどりちゃんに体を！」＝ペルソナ内で唯一、自分を三人称で呼ぶ表現。
+    「自分＝みどり／相手＝ドクター」の対応と、この誤り文そのものを反例として
+    明記して解消。**ドクター呼びが定着したことを実機で確認済み**
 
-  ```
-  FROM qwen3:8b
-  PARAMETER num_ctx 8192
-  ```
+  **「ドクター」→「師匠」の切り替わりは Build Log #013 で発動を確認済み**
+  （実験成功を伝えたら「師匠！めっちゃうれしい😆」と返した）。
 
-  ```bash
-  ollama create qwen3-8b-8k -f Modelfile
-  ```
+  残りの確認ポイント：脱線の頻度、日本語以外や方言が混ざらないか、そして
+  **話しかけてから声が返るまでの体感時間**（ASR → LLM → TTS の通し。#007 では
+  qwen2.5 が体感5秒未満、qwen3:8b が約5秒遅れだった）
 
-  作成後 `conf.yaml` の `ollama_llm.model` を `qwen3-8b-8k` に変更する。
-  ただし Build Log #007 で qwen3:8b は thinking モードによる約5秒の遅延が
-  ネックと判断して見送った経緯があるため、qwen2.5 側で同じことをやるか、
-  遅延を許容するかは会話テストの結果を見て決める
+- **起動時デフォルトを佐倉みどりに戻す**。クリーンインストールで `conf.yaml` が
+  再生成され、起動時キャラクターは既定の `Mao`（英語ペルソナ）に戻っている。
+  `characters/sakura_midori.yaml` は切替候補として読まれるだけで起動時に自動適用
+  されない（#010 の調査結果）。毎回 `Character Preset` で切り替えるのが面倒に
+  なったら、#010 と同じく `conf.yaml` の `character_config` に反映する
+
+- ~~**Ollama の `num_ctx` 引き上げ**~~ → **Build Log #012 で対応済み。**
+  `qwen3-nothink`（`qwen3:8b` ベース、テンプレート改変で thinking 無効化 ＋
+  `PARAMETER num_ctx 8192`）を作成し、`/v1` 経由で thinking が出ないこと・
+  CONTEXT が 8192 になることを確認した。Modelfile は `~/ollama-modelfiles/`。
+  persona も 1,246 → 260 トークンに短縮済み。
+  **その後 #013 で `qwen3-vl-8k`（vision 対応）に載せ替えたため、`qwen3-nothink`
+  は現在使っていない。** テキスト専用に戻す判断をしたときのために残してある。
+
+  補足：Ollama の既定 `num_ctx` はバージョンで変わる（0.33.3 では 2048 ではなく
+  4096 だった）。溢れても**エラーにならず古い履歴が黙って捨てられる**ので、
+  実際の値は `ollama ps` の CONTEXT 列で毎回実測する。
+  なお `options.num_ctx` は Ollama ネイティブAPI 専用で、Open-LLM-VTuber が使う
+  OpenAI 互換API（`/v1`）からは指定できない。**Modelfile に焼くのが唯一の手段。**
 
 - **Open-LLM-VTuber をフォークして開発を始める**。Linux のペットモード対応
   （Build Log #010）を皮切りに、今後も本家に手を入れ続けることになる。現状は
@@ -109,10 +133,21 @@ This content uses sample data owned and copyrighted by Live2D Inc.
   みて、不便を実感してから着手する。人格定義と当日情報は分離し、
   persona_prompt には当日情報を書き足さない
 
-### TTSアップグレード（調査済み、未着手）
+### TTSアップグレード（Build Log #013 で決着）
 
-edge_tts → Azure Neural TTS（無料枠月50万文字）が既定路線。その先の本格
-アップグレード候補として以下を比較検討済み：
+**Irodori-TTS を採用した。** 以下は採用前の比較検討メモとして残す（他候補へ乗り換える
+判断が必要になったときのために消さない）。Irodori-TTS が満たしたのは、ローカル完結・
+MIT ライセンス・リアルタイム相当の速度・ゼロショット音声クローン・絵文字による感情制御。
+
+| 採用したもの | 内容 |
+|---|---|
+| サーバー | https://github.com/Aratako/Irodori-TTS-Server （OpenAI TTS API 互換、`localhost:8088`） |
+| モデル | `Aratako/Irodori-TTS-v4-Small`（MIT） |
+| 声 | `voice/sakura_midori.wav`（caption `ボーイッシュな女性の声。さっぱりとした話し方。` / seed `1006` で生成） |
+| 感情制御 | 絵文字7種を人格定義で指定。`conf.yaml` の `remove_special_char: False` が必須 |
+| 注意 | 絵文字は「。」「！」「？」の直前に置く。後ろだと単独チャンクになる（`patches/013-sentence-divider-emoji.patch` で吸収） |
+
+以下は採用前に比較した候補：
 
 | モデル | ライセンス | 特徴・向き不向き |
 |---|---|---|
@@ -132,12 +167,25 @@ edge_tts → Azure Neural TTS（無料枠月50万文字）が既定路線。そ�
 
 ## 起動手順
 
+### TTS サーバー（先に起動しておく）
+
+```bash
+cd ~/development/Irodori-TTS-Server
+uv run --no-sync python -m irodori_openai_tts --host 0.0.0.0 --port 8088
+curl http://localhost:8088/health   # 別ターミナルで確認
+```
+
+**これを起動していないと音声が出ない。**
+
 ### バックエンド
 
 ```bash
 cd ~/development/open-llm-vtuber-lab/Open-LLM-VTuber
 uv run run_server.py
 ```
+
+起動直後のキャラクターは `conf.yaml` の `character_config` 依存で、現在は既定の
+`Mao`（英語ペルソナ）。**Setting → `Character Preset` → 佐倉みどり** で切り替える。
 
 ### Electron版（Desktop Pet Mode）
 
