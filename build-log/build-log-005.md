@@ -127,7 +127,9 @@ systemctl --user restart speech-dispatcher.service
 spd-say --wait "Recording episode one"   # モジュール指定なしでもfliteの声で発話することを確認
 ```
 
-piper-ttsをインストールしてみる。
+**対処3（piper-tts導入）**：
+
+piper-ttsをインストールしてみる。とっても流暢。
 
 ```bash
 sudo snap install piper-tts --edge
