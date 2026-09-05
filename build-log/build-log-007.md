@@ -53,7 +53,8 @@ git version 2.43.0
 ```bash
 ffmpeg -version
 ```
-```
+
+```text
 ffmpeg version 6.1.1-3ubuntu5
 ```
 
@@ -89,7 +90,7 @@ uv run run_server.py
 
 初回起動時のログ抜粋：
 
-```
+```text
 [INFO] Running in standard mode.
 2026-07-28 22:47:26 | WARNING | upgrade_codes.config_sync:sync_user_config:43 | Warning: conf.yaml not found
 2026-07-28 22:47:26 | WARNING | upgrade_codes.config_sync:sync_user_config:44 | Copying default configuration from template

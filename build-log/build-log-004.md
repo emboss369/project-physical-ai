@@ -2,7 +2,7 @@
 
 ## 今日やったこと
 
-### 1. Mozc（日本語入力）の初期モードをひらがなに固定
+### 1. Mozc（日本語入力）の初期モードをひらがなに固定（**Optional**）
 
 デフォルトではIBus+Mozcは「Direct（半角英数）」モードで起動する仕様（IBus 1.5.0以降の既知の仕様）。これを起動時から「ひらがな」に固定した。
 
@@ -57,6 +57,7 @@ sudo reboot
 **uvのインストール**：
 
 ```bash
+sudo apt install curl
 curl -LsSf https://astral.sh/uv/install.sh | sh
 source ~/.bashrc
 uv --version
@@ -125,7 +126,7 @@ python -c "import torch; print(torch.__version__, torch.cuda.is_available(), tor
 
 結果：
 ```
-2.11.0+cu128 True NVIDIA GeForce RTX 5060 Ti
+2.11.0+cu130 True NVIDIA GeForce RTX 5060 Ti
 ```
 
 **追加extrasのインストール**：
@@ -169,14 +170,19 @@ lsblk
 
 ```bash
 sudo blkid | grep sda2
+
+sda           8:0    0   3.6T  0 disk 
+└─sda1        8:1    0   3.6T  0 part /media/hiro/DATA
 ```
 
-UUID（`C6403380403375F1`）を取得。
+sda1にあるHDDが3.7BのHDD。ここに学習データを置く。
+
+UUID（`2690DA7090DA4649`）を取得。
 
 ```bash
 sudo mkdir -p /mnt/data
 sudo umount /media/hiro/DATA
-echo 'UUID=C6403380403375F1  /mnt/data  ntfs-3g  defaults,uid=1000,gid=1000,windows_names  0  0' | sudo tee -a /etc/fstab
+echo 'UUID=2690DA7090DA4649  /mnt/data  ntfs-3g  defaults,uid=1000,gid=1000,windows_names  0  0' | sudo tee -a /etc/fstab
 sudo mount -a
 df -h /mnt/data
 ```
@@ -268,7 +274,66 @@ source ~/.bashrc
 lerobot-calibrate --robot.type=so101_follower --robot.port=$FOLLOWER_ARM --robot.id=right_follower_arm
 ```
 
-初回実行時、以下のエラーで失敗：
+#### パーミッションエラーで失敗：
+
+PermissionError: [Errno 13] Permission denied: '/dev/so101_follower'
+
+対処：
+
+`PermissionError: [Errno 13] Permission denied: '/dev/ttyACM0'` は、Pythonなどのプログラムがシリアルデバイス `/dev/ttyACM0` にアクセスする権限を持っていないことを意味します。
+
+Linuxではよくあるエラーです。
+
+#### 1. デバイスの権限を確認する
+
+```bash
+ls -l /dev/ttyACM0
+```
+
+例:
+
+```text
+crw-rw---- 1 root dialout 166, 0 Jul  3 10:30 /dev/ttyACM0
+```
+
+この場合、
+
+* 所有者: `root`
+* グループ: `dialout`
+
+となっています。
+
+---
+
+#### 2. 自分が `dialout` グループに所属しているか確認
+
+```bash
+groups
+```
+
+または
+
+```bash
+id
+```
+
+`dialout` が表示されなければ追加します。
+
+Ubuntuの場合
+
+```bash
+sudo usermod -aG dialout $USER
+```
+
+その後
+
+```bash
+logout
+```
+
+または再起動します。
+
+#### 初回実行時、以下のエラーで失敗：
 
 ```
 ConnectionError: Failed to write 'Torque_Enable' on id_=2 with '0' after 1 tries. [TxRxResult] There is no status packet!

@@ -127,6 +127,71 @@ systemctl --user restart speech-dispatcher.service
 spd-say --wait "Recording episode one"   # モジュール指定なしでもfliteの声で発話することを確認
 ```
 
+piper-ttsをインストールしてみる。
+
+```bash
+sudo snap install piper-tts --edge
+
+
+cd ~
+
+# 英語モデル（lessac-medium）と設定ファイルのダウンロード
+wget -O ~/en_US-lessac-medium.onnx "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/en_US-lessac-medium.onnx"
+wget -O ~/en_US-lessac-medium.onnx.json "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/en_US-lessac-medium.onnx.json"
+
+cat << 'EOF' > ~/.config/speech-dispatcher/speechd.conf
+# サーバーのタイムアウトを無効化（常駐維持）
+Timeout 0
+
+# Piper モジュールの読み込み設定
+AddModule "piper-generic" "sd_generic" "piper-generic.conf"
+DefaultModule "piper-generic"
+EOF
+
+mkdir -p ~/.config/speech-dispatcher/modules
+cat << 'EOF' > ~/.config/speech-dispatcher/modules/piper-generic.conf
+# %t 形式で受け取る定義
+GenericCmdString "%t"
+
+# 正しい合成実行オプション (GenericExecuteSynth)
+GenericExecuteSynth "/home/hiro/.config/speech-dispatcher/piper-wrapper.sh \'$DATA\'"
+
+# 必須の補助オプション
+GenericStripPunctChars ""
+
+# 言語とボイスの設定
+AddVoice "en" "MALE1" "en"
+AddVoice "ja" "MALE1" "ja"
+DefaultVoice "en"
+EOF
+
+cat << 'EOF' > ~/.config/speech-dispatcher/piper-wrapper.sh
+#!/bin/bash
+MODEL_PATH="/home/hiro/en_US-lessac-medium.onnx"
+
+# 引数（$1）優先、空なら標準入力から取得
+INPUT_TEXT="${1:-$(cat)}"
+
+if [ -n "$INPUT_TEXT" ] && [ -f "$MODEL_PATH" ]; then
+    echo "$INPUT_TEXT" | piper-tts.piper-cli \
+        --model "$MODEL_PATH" \
+        --output-raw 2>/dev/null | aplay -D default -r 22050 -f S16_LE -c 1 2>/dev/null
+fi
+EOF
+
+# 実行権限の付与
+chmod +x ~/.config/speech-dispatcher/piper-wrapper.sh
+
+# 既存プロセスのリセット（AutoSpawnで必要時に勝手に起動します）
+killall -9 speech-dispatcher 2>/dev/null
+
+# テスト再生
+spd-say -l en "Hello, this is Piper speaking!"
+
+```
+
+
+
 ### 5. データ収集（`lerobot-record`）
 
 タスクを決定：「黄色いレゴブロックを、白いケースに入れる」。LeRobotの既存データセット・学習事例は英語表記が主流のため、`--dataset.single_task`は英語 `"Put the yellow lego block into the white case"` を採用。計画は**1日50エピソード×4日間**、データが増えるにつれて精度がどう変化するかを見る。

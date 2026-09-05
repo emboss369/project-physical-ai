@@ -27,6 +27,14 @@
 
 はい、このような経緯があり、急に高額請求されるようなバグを内包したサービスはもう使いたくはありません。せっかく高性能なGPUを所有しているのですから、しっかり24時間働いてもらいましょう、ということで、ローカルLLMコーディング環境を構築していきたいと思います。
 
+## OpenCodeのインストール
+
+https://opencode.ai/ja
+
+```bash
+curl -fsSL https://opencode.ai/install | bash
+```
+
 ## Step 1 vLLM
 
 vLLM（Very Large Language Model）は、大規模言語モデル（LLM）を高速で効率的に推論するためのオープンソースライブラリです。これを導入しましょう。
@@ -60,7 +68,7 @@ uv add vllm
 # まず、VSCodeのターミナルを使わないようにした。
 # 普通にUbuntuの端末を起動して以下のコマンドを実行
 
-sudo chown -R hiro:hiro /opt/ai
+sudo chown -R $USER:$USER /opt/ai
 cd /opt/ai
 uv venv
 source .venv/bin/activate

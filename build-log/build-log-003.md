@@ -8,7 +8,7 @@ BTO PC（Ryzen 7 9800X3D / RTX 5060 Ti 16GB）を受け取り、Windows環境を
 
 **高速スタートアップの無効化**：
 
-```
+```text
 コントロールパネル → 電源オプション → 「電源ボタンの動作を選択する」
 → 「現在利用可能ではない設定を変更します」
 → 「高速スタートアップを有効にする」のチェックを外す
@@ -26,7 +26,7 @@ manage-bde -status
 
 **Windowsのブートモード確認**：
 
-```
+```text
 Win + R → msinfo32 → Enter
 ```
 
@@ -34,7 +34,7 @@ Win + R → msinfo32 → Enter
 
 ### 2. データ用4TB HDDのNTFSフォーマット（Windows側）
 
-```
+```text
 Win + X → 「ディスクの管理」
 → 未割り当てのHDDを右クリック → 「新しいシンプルボリューム」
 → GPT初期化
@@ -47,13 +47,13 @@ WindowsとUbuntu両方から読み書きする用途のため、ext4ではなく
 
 ### 3. SSD（1TB）のパーティション縮小
 
-```
+```text
 Win + X → 「ディスクの管理」→ Cドライブ右クリック → 「ボリュームの縮小」
 ```
 
 縮小サイズはMB単位指定のため、500GB確保する場合：
 
-```
+```text
 500 GB × 1024 = 512000 MB
 ```
 
@@ -61,7 +61,7 @@ Win + X → 「ディスクの管理」→ Cドライブ右クリック → 「�
 
 ### 4. Ubuntu 24.04 LTSインストールUSBの作成（Rufus）
 
-```
+```markdown
 Rufus（Windows上）で8GB以上のUSBに書き込み
 - パーティション方式：GPT
 - ターゲットシステム：UEFI（非CSM）
@@ -71,7 +71,7 @@ Rufus（Windows上）で8GB以上のUSBに書き込み
 
 ### 5. BIOS設定変更（ASRock B650M Pro X3D WiFi）
 
-```
+```markdown
 - Secure Boot：無効化
 - Boot Mode：UEFIであることを確認
 - USB起動を優先に設定
@@ -81,7 +81,7 @@ Secure Boot無効化は、事前に把握していたRTX 5060 Ti固有の既知�
 
 ### 6. Ubuntu 24.04インストール本番
 
-```
+```text
 USBから起動 → Try or Install Ubuntu
 → 言語・キーボード設定
 → 「サードパーティ製ソフトウェアをインストールする」にチェック
@@ -103,6 +103,7 @@ USBから起動 → Try or Install Ubuntu
 事前調査で、RTX 5060 Ti（Blackwell世代）はUbuntu 24.04でドライバ560/575/580系列すべてが`nvidia-smi: No devices were found`や`Failed to allocate NvkmsKapiDevice`エラーで失敗する報告が複数（NVIDIA公式フォーラム等）確認できていたため、警戒しながら作業した。
 
 これは実行しなかった。既にドライバ入っていた
+
 ```bash
 sudo apt update && sudo apt upgrade -y
 ubuntu-drivers devices
@@ -118,7 +119,7 @@ nvidia-smi
 
 結果：
 
-```
+```text
 NVIDIA-SMI 595.84   Driver Version: 595.84   CUDA Version: 13.2
 GPU: NVIDIA GeForce RTX 5060 Ti / 16311MiB
 ```
@@ -148,6 +149,21 @@ echo 'export LD_LIBRARY_PATH=/usr/local/cuda-12.8/lib64:$LD_LIBRARY_PATH' >> ~/.
 source ~/.bashrc
 ```
 
+**しかし今回は13.0を試す**
+
+https://developer.nvidia.com/cuda-13-0-3-download-archive?target_os=Linux
+
+```bash
+wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb
+sudo dpkg -i cuda-keyring_1.1-1_all.deb
+sudo apt-get update
+sudo apt-get -y install cuda-toolkit-13-0
+
+echo 'export PATH=/usr/local/cuda-13.0/bin:$PATH' >> ~/.bashrc
+echo 'export LD_LIBRARY_PATH=/usr/local/cuda-13.0/lib64:$LD_LIBRARY_PATH' >> ~/.bashrc
+source ~/.bashrc
+```
+
 疎通確認：
 
 ```bash
@@ -156,12 +172,25 @@ nvcc --version
 
 結果：
 
-```
+12.8
+
+```txt
 Cuda compilation tools, release 12.8, V12.8.93
 Build cuda_12.8.r12.8/compiler.35583870_0
 ```
+13.0
+
+```text
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2025 NVIDIA Corporation
+Built on Wed_Aug_20_01:58:59_PM_PDT_2025
+Cuda compilation tools, release 13.0, V13.0.88
+Build cuda_13.0.r13.0/compiler.36424714_0
+```
 
 CUDA 12.8を選んだ理由は、後続でインストールするPyTorch 2.11.0のcu128ホイールとバージョンを揃えるため（ドライバは13.2まで対応可能なため上位互換の心配はない）。
+
+CUDA 13.0を試してみた理由は、、後続でインストールするPyTorch 2.11.0のcu130ホイールとバージョンを揃えつつ、最新技術に対応したバージョンにするため。PyTorch 2.11はcu130までは対応。
 
 ## 結果（成功／失敗／保留）
 
