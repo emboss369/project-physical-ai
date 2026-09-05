@@ -29,8 +29,27 @@ uv run python -c "import yaml; yaml.safe_load(open('characters/sakura_midori.yam
 | LLM | Ollama `qwen3-vl-8k` / temperature 0.9（Build Log #013。`qwen3-vl:8b-instruct` ベース、vision 対応・thinking 無し・`num_ctx 8192`） |
 | TTS | **Irodori-TTS**（`Aratako/Irodori-TTS-v4-Small`）を OpenAI 互換サーバー経由（`localhost:8088`）。voice は `sakura_midori`（Build Log #013） |
 | ASR | sherpa-onnx（SenseVoiceSmall、CPU推論） |
-| Live2Dモデル | `mao_pro`（Live2Dオリジナルキャラクター「Mao Niziiro」） |
+| Live2Dモデル | `mao_pro`（Live2D 公式サンプルキャラクター「虹色まお」のモデルデータ。後述） |
 | 実行形態 | Electron 版をソースビルド（Linux バイナリは公式配布なし） |
+
+### `mao_pro` とは何か
+
+**`mao_pro` はキャラクター名ではなく、モデルデータの識別子。** Live2D 公式が学習・
+テスト用に無料配布しているサンプルモデル「**虹色まお**」の、組み込み用データの
+ファイル名・フォルダ名（`mao_pro.moc3` / `mao_pro.model3.json` など）を指す。
+
+- 配布元：[Live2D サンプルモデル](https://www.live2d.com/learn/sample/)
+- 公式サンプルで利用条件が緩いため、**Open-LLM-VTuber や AITuberKit といった
+  AIアバター系のOSSで、動作テスト用の既定 Live2D キャラクターとして
+  よく同梱・指定されている**（[Open-LLM-VTuber v1.2.0 リリースノート](http://docs.llmvtuber.com/en/blog/v1.2.0-release/)）
+- 参考：[Live2D クリエイターズフォーラム](https://creatorsforum.live2d.com/t/topic/2754)
+
+つまり佐倉みどりは、**「虹色まお」の体を借りて喋っている**状態。人格（`sakura_midori.yaml`）と
+声（`voice/sakura_midori.wav`）は自前だが、見た目だけは Live2D 公式の素材を使っている。
+アバターを自作する（バックログの「アバター・見た目」）までは、この構成が続く。
+
+呼び分け：**設定ファイルやコード上の識別子は `mao_pro`、日本語の文章で
+キャラクターを指すときは「虹色まお」**。GLOSSARY.md に登録済み。
 
 ### Live2D の利用条件（守ること）
 
