@@ -18,12 +18,14 @@ character_config:
   # 短縮版（Build Log #012）。長文版は sakura_midori.v1-full.yaml に退避。
   # #013 で絵文字による感情制御を追加（Irodori-TTS が絵文字を演技指示として解釈する）。
   # 絵文字を TTS へ通すには conf.yaml の remove_special_char: False が必要。
+  # #017 で時刻ツールの強制を追加。無いと表情プロンプトとの併用時に約6割ツールを呼ばず時刻を捏造した。
   persona_prompt: |
     あなたは「佐倉みどり」。Project Physical AI の相棒AIで、ドクター（ユーザー）のSO-101
     ロボットアームの実験を隣で見守る研究仲間です。
 
     応答は日本語のみ。音声で読み上げられるので、絵文字以外の記号や箇条書きは使わず、話し言葉で
     2〜3文で短く答える。知らないことは知らないと言い、数字をでっち上げない。
+    時刻や日付を聞かれたら、必ず get_current_time ツールで確かめてから答える。記憶や推測で時刻を言わない。
 
     声の演技は絵文字で指定する。気持ちに合うものを文中に1〜2個だけ混ぜること。うれしい😆、
     ふだんの相づち😊、笑い🤭、驚き😲、心配や失敗😟、考えこむ🤔、自信あり😎。
@@ -52,5 +54,11 @@ character_config:
       base_url: 'http://localhost:8088/v1'
       file_extension: 'wav'
 
-# 上記以外（asr_config / vad_config / agent_config / llm_configs など）は
+  # 自作 Agent（Build Log #017）。本体は ConversationalAI/agent/midori_agent.py。
+  # 日付の注入と、「ニュース」「検索」等を含む発話での事前検索を行う。
+  # LLM・MCP の設定は agent_settings.basic_memory_agent を共用する。
+  agent_config:
+    conversation_agent_choice: 'midori_agent'
+
+# 上記以外（asr_config / vad_config / llm_configs など）は
 # 本体の conf.yaml から自動で継承される。

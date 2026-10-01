@@ -20,7 +20,7 @@ LOG_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/sakura-midori"
 OLLAMA_URL="http://localhost:11434"
 TTS_URL="http://localhost:8088"
 VTUBER_URL="http://localhost:12393"
-LLM_MODEL="qwen3-vl-8k"
+LLM_MODEL="qwen3-vl-32k"
 
 DO_APP=1; DO_WARM=1; CHECK_ONLY=0
 for arg in "$@"; do

@@ -8,6 +8,7 @@
 ## Claude Code への指示
 - Build Log は build-log/build-log-NNN.md（3桁ゼロ埋め、番号は回数）
 - Build Log テンプレートは CONVENTIONS と system prompt の型に従う
+- Build Log に相棒AIへの質問文・会話テスト・検索評価の質問を載せるときは `<!-- rag:ignore-start -->` 〜 `<!-- rag:ignore-end -->` で囲む（佐倉みどりの Build Log 検索が、その質問で記録自体を引いてしまうため。Build Log #017 節12）
 - 固有名詞は @GLOSSARY.md の表記に統一する（字幕・記事の修正時）
 - 発信品質ルール：事実・予測・ビジョンを峻別。数値は出典・通貨・期間を明記。断定しない。
 - Qiita記事の投稿手順は @QIITA.md を参照。APIトークンはユーザー自身のターミナルで扱い、投稿前に内容を必ず確認する

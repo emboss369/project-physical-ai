@@ -1,0 +1,52 @@
+diff --git a/src/open_llm_vtuber/agent/agent_factory.py b/src/open_llm_vtuber/agent/agent_factory.py
+index 4892a23..c2420a0 100644
+--- a/src/open_llm_vtuber/agent/agent_factory.py
++++ b/src/open_llm_vtuber/agent/agent_factory.py
+@@ -3,6 +3,7 @@ from loguru import logger
+ 
+ from .agents.agent_interface import AgentInterface
+ from .agents.basic_memory_agent import BasicMemoryAgent
++from .agents.midori_agent import MidoriAgent
+ from .stateless_llm_factory import LLMFactory as StatelessLLMFactory
+ from .agents.hume_ai import HumeAIAgent
+ from .agents.letta_agent import LettaAgent
+@@ -36,7 +37,8 @@ class AgentFactory:
+         """
+         logger.info(f"Initializing agent: {conversation_agent_choice}")
+ 
+-        if conversation_agent_choice == "basic_memory_agent":
++        # midori_agent: BasicMemoryAgent の派生。設定は basic_memory_agent のものを共用する
++        if conversation_agent_choice in ("basic_memory_agent", "midori_agent"):
+             # Get the LLM provider choice from agent settings
+             basic_memory_settings: dict = agent_settings.get("basic_memory_agent", {})
+             llm_provider: str = basic_memory_settings.get("llm_provider")
+@@ -67,8 +69,14 @@ class AgentFactory:
+             tool_executor: Optional[ToolExecutor] = kwargs.get("tool_executor")
+             mcp_prompt_string: str = kwargs.get("mcp_prompt_string", "")
+ 
++            agent_class = (
++                MidoriAgent
++                if conversation_agent_choice == "midori_agent"
++                else BasicMemoryAgent
++            )
++
+             # Create the agent with the LLM and live2d_model
+-            return BasicMemoryAgent(
++            return agent_class(
+                 llm=llm,
+                 system=system_prompt,
+                 live2d_model=live2d_model,
+diff --git a/src/open_llm_vtuber/config_manager/agent.py b/src/open_llm_vtuber/config_manager/agent.py
+index b257d60..80f6f3d 100644
+--- a/src/open_llm_vtuber/config_manager/agent.py
++++ b/src/open_llm_vtuber/config_manager/agent.py
+@@ -200,7 +200,8 @@ class AgentConfig(I18nMixin, BaseModel):
+     """This class contains all of the configurations related to agent."""
+ 
+     conversation_agent_choice: Literal[
+-        "basic_memory_agent", "mem0_agent", "hume_ai_agent", "letta_agent"
++        "basic_memory_agent", "mem0_agent", "hume_ai_agent", "letta_agent",
++        "midori_agent",
+     ] = Field(..., alias="conversation_agent_choice")
+     agent_settings: AgentSettings = Field(..., alias="agent_settings")
+     llm_configs: StatelessLLMConfigs = Field(..., alias="llm_configs")

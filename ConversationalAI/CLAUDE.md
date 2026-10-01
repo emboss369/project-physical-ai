@@ -9,6 +9,7 @@ Open-LLM-VTuber をベースにした、Project Physical AI の相棒AIキャラ
 | `sakura_midori.yaml` | 佐倉みどりのキャラクター設定。**ここが正**で、Open-LLM-VTuber 側の `characters/sakura_midori.yaml` はここへのシンボリックリンク |
 | `sakura_midori.v1-full.yaml` | 長文版ペルソナ（1,683字／1,246トークン）の退避。Build Log #012 で短縮版（348字／260トークン）に差し替えた際のバックアップ。現行は絵文字ルール等を足して777字。人格が薄いと感じたらここから1行ずつ戻す |
 | `voice/` | 佐倉みどりのリファレンス音声（Irodori-TTS のクローン元）。**ここが正**で、Irodori-TTS-Server 側の `voices/sakura_midori.wav` はここへのシンボリックリンク。出どころは `voice/README.md` |
+| `agent/midori_agent.py`<br>`agent/build_log_rag.py` | 自作 Agent（Build Log #017）。日付の注入、「ニュース」「検索」等での Web 事前検索、「Build Log」「前に」「〜だっけ」等での `build-log/` 検索（文字 bigram の BM25、埋め込みモデル不要）。**ここが正**で、本体の `src/open_llm_vtuber/agent/agents/` 配下の同名ファイルはここへのシンボリックリンク。Build Log 検索は単体でも試せる：`python agent/build_log_rag.py "検索語"`。登録用の本体改修は `patches/017-midori-agent.patch` |
 | `patches/` | 本家 Open-LLM-VTuber に加えた改修の diff バックアップ |
 | `start-midori.sh` | 起動スクリプト。TTS → LLM 事前ロード → バックエンド → Electron を一発で立ち上げる（`--check` / `--no-app` / `--no-warm`） |
 
@@ -27,7 +28,7 @@ uv run python -c "import yaml; yaml.safe_load(open('characters/sakura_midori.yam
 
 | 要素 | 設定 |
 |---|---|
-| LLM | Ollama `qwen3-vl-8k` / temperature 0.9（Build Log #013。`qwen3-vl:8b-instruct` ベース、vision 対応・thinking 無し・`num_ctx 8192`） |
+| LLM | Ollama `qwen3-vl-32k` / temperature 0.9（Build Log #013 の `qwen3-vl-8k` を #017 で `num_ctx 32768` に拡張。`qwen3-vl:8b-instruct` ベース、vision 対応・thinking 無し。KV キャッシュは q8_0（`OLLAMA_KV_CACHE_TYPE`、全モデル共通）） |
 | TTS | **Irodori-TTS**（`Aratako/Irodori-TTS-v4-Small`）を OpenAI 互換サーバー経由（`localhost:8088`）。voice は `sakura_midori`（Build Log #013） |
 | ASR | sherpa-onnx（SenseVoiceSmall、CPU推論） |
 | Live2Dモデル | `mao_pro`（Live2D 公式サンプルキャラクター「虹色まお」のモデルデータ。後述） |
@@ -219,7 +220,7 @@ Irodori-TTS → LLM の事前ロード → バックエンド → Electron（ペ
 
 | # | プロセス | ポート | 手で起動する？ |
 |---|---|---|---|
-| 1 | Ollama（LLM `qwen3-vl-8k`） | 11434 | **不要**（systemd で自動起動・常駐） |
+| 1 | Ollama（LLM `qwen3-vl-32k`） | 11434 | **不要**（systemd で自動起動・常駐） |
 | 2 | Irodori-TTS-Server（音声） | 8088 | **必要** |
 | 3 | Open-LLM-VTuber バックエンド | 12393 | **必要** |
 | 4 | 画面（ブラウザ or Electron ペットモード） | — | どちらか |

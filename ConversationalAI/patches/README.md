@@ -57,3 +57,33 @@ git apply --check --reverse .../open-llm-vtuber-web-linux-pet-mode.patch
 ```bash
 PET_DEBUG=1 ELECTRON_ENABLE_LOGGING=1 ./open-llm-vtuber
 ```
+
+---
+
+## 017-midori-agent.patch
+
+自作 Agent `midori_agent` を本体に登録する改修（Build Log #017）。Agent 本体は
+`ConversationalAI/agent/midori_agent.py`（Build Log 検索は同じ場所の `build_log_rag.py`）で、本体側からはシンボリックリンクで参照する。
+このパッチは登録に必要な2箇所だけ。
+
+| | |
+|---|---|
+| 対象リポジトリ | https://github.com/Open-LLM-VTuber/Open-LLM-VTuber |
+| ベースコミット | `992309c0aa19845960228f880013d4685fde93b5` |
+| 変更ファイル | `src/open_llm_vtuber/agent/agent_factory.py`, `src/open_llm_vtuber/config_manager/agent.py` |
+
+- `config_manager/agent.py`：`conversation_agent_choice` は `Literal` で検証されるため、選択肢に `midori_agent` を足す
+- `agent_factory.py`：`midori_agent` を `basic_memory_agent` と同じ分岐で作る。LLM・MCP の設定を共用するので、MCP ツールも使える
+
+### 適用方法
+
+```bash
+cd ~/development/open-llm-vtuber-lab/Open-LLM-VTuber
+git apply ~/Develop/project-physical-ai/ConversationalAI/patches/017-midori-agent.patch
+for f in midori_agent.py build_log_rag.py; do
+  ln -s ~/Develop/project-physical-ai/ConversationalAI/agent/$f src/open_llm_vtuber/agent/agents/$f
+done
+```
+
+使うキャラクターの YAML に `agent_config.conversation_agent_choice: 'midori_agent'` を書く
+（`sakura_midori.yaml` で設定済み）。
