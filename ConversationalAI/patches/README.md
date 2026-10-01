@@ -3,8 +3,17 @@
 本家リポジトリに手を加えた内容のバックアップ。本家は `.gitignore` で設定類を
 除外しており、改修もフォーク前でpush先が無いため、ここに diff として保管する。
 
-フォークを作ったら（→ ConversationalAI/CLAUDE.md のバックログ）、
-フォーク先で `git apply` してからコミットし、このディレクトリは役目を終える。
+**2026-10-01 にフォークし、ここの改修はすべてフォークにコミットした（Build Log #017 節14）。
+今後の正はフォーク側。このディレクトリは履歴として残し、更新しない。**
+
+| パッチ | フォークのコミット |
+|---|---|
+| `open-llm-vtuber-web-linux-pet-mode.patch` | [emboss369/Open-LLM-VTuber-Web `e70eb42`](https://github.com/emboss369/Open-LLM-VTuber-Web/commit/e70eb42) |
+| `013-sentence-divider-emoji.patch` | [emboss369/Open-LLM-VTuber `3c5b6a9`](https://github.com/emboss369/Open-LLM-VTuber/commit/3c5b6a9) |
+| `017-midori-agent.patch` | [emboss369/Open-LLM-VTuber `47b1cc9`](https://github.com/emboss369/Open-LLM-VTuber/commit/47b1cc9)（フォークでは `MidoriAgent` の import を遅延に変えている。パッチのままだと、シンボリックリンクの無い clone で全 Agent が import で落ちるため） |
+
+パッチに入っていなかったもの：`mcp_servers.json` のタイムゾーン（`21a5d49`）、
+フロントエンドの `package-lock.json` の version 合わせ（`da93692`）。
 
 ---
 

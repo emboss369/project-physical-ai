@@ -10,7 +10,7 @@ Open-LLM-VTuber をベースにした、Project Physical AI の相棒AIキャラ
 | `sakura_midori.v1-full.yaml` | 長文版ペルソナ（1,683字／1,246トークン）の退避。Build Log #012 で短縮版（348字／260トークン）に差し替えた際のバックアップ。現行は絵文字ルール等を足して777字。人格が薄いと感じたらここから1行ずつ戻す |
 | `voice/` | 佐倉みどりのリファレンス音声（Irodori-TTS のクローン元）。**ここが正**で、Irodori-TTS-Server 側の `voices/sakura_midori.wav` はここへのシンボリックリンク。出どころは `voice/README.md` |
 | `agent/midori_agent.py`<br>`agent/build_log_rag.py` | 自作 Agent（Build Log #017）。日付の注入、「ニュース」「検索」等での Web 事前検索、「Build Log」「前に」「〜だっけ」等での `build-log/` 検索（文字 bigram の BM25、埋め込みモデル不要）。**ここが正**で、本体の `src/open_llm_vtuber/agent/agents/` 配下の同名ファイルはここへのシンボリックリンク。Build Log 検索は単体でも試せる：`python agent/build_log_rag.py "検索語"`。登録用の本体改修は `patches/017-midori-agent.patch` |
-| `patches/` | 本家 Open-LLM-VTuber に加えた改修の diff バックアップ |
+| `patches/` | 本家 Open-LLM-VTuber に加えた改修の diff バックアップ。**フォーク後は履歴用**（正はフォーク） |
 | `start-midori.sh` | 起動スクリプト。TTS → LLM 事前ロード → バックエンド → Electron を一発で立ち上げる（`--check` / `--no-app` / `--no-warm`） |
 
 `sakura_midori.yaml` を編集したら、**必ずパースを通してから起動する**（Build Log #012 で
@@ -122,17 +122,20 @@ This content uses sample data owned and copyrighted by Live2D Inc.
   なお `options.num_ctx` は Ollama ネイティブAPI 専用で、Open-LLM-VTuber が使う
   OpenAI 互換API（`/v1`）からは指定できない。**Modelfile に焼くのが唯一の手段。**
 
-- **Open-LLM-VTuber をフォークして開発を始める**。Linux のペットモード対応
-  （Build Log #010）を皮切りに、今後も本家に手を入れ続けることになる。現状は
-  本家クローンの `main` を直接編集し、diff を `patches/` に退避しているだけで、
-  push 先が無い状態。フォークすれば履歴が残り、上流への PR も出せる。
-  対象は `Open-LLM-VTuber-Web`（フロントエンド/Electron）と
-  `Open-LLM-VTuber`（バックエンド）の2つ
+- ~~**Open-LLM-VTuber をフォークして開発を始める**~~ → **2026-10-01 にフォーク済み**（Build Log #017 節14）。
+  - バックエンド：https://github.com/emboss369/Open-LLM-VTuber
+  - フロントエンド：https://github.com/emboss369/Open-LLM-VTuber-Web
+  - ローカルのクローンは `origin` ＝ フォーク、`upstream` ＝ 本家。改修はフォークの `main` に話題ごとのコミットで積む
+  - `midori_agent.py` / `build_log_rag.py`（シンボリックリンク）、`conf.yaml.before-*` は
+    `.git/info/exclude` で除外。**正はこのリポジトリ**のまま
+  - 本家の更新を取り込むとき：`git fetch upstream && git merge upstream/main`
 
 - **Linux ペットモード対応を上流へ PR**。公式は Linux バイナリを配布しておらず、
   この修正はそのまま貢献になる。関連 issue は electron/electron#16777（Linux で
   `setIgnoreMouseEvents` の forward が未対応、2019年から open）。
-  フォーク作成が前提
+  フォークの `e70eb42` がその修正。本家は v2 の書き直し中で v1 への機能 PR を控えるよう
+  求めているので、バグ修正として受け付けるかを issue 等で確かめてから、本家の `main` から
+  この修正だけを載せたブランチを切って出す
 
 ### アバター・見た目
 

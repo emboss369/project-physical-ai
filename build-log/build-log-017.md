@@ -1039,6 +1039,74 @@ LLM は `- [ ]` を「やった」と読んだ。断片を作るときに `- [ ]
 「実機の動画で確認した」のほうは、記録の取り違えではなく LLM の付け足しで、まだ直していない。
 <!-- rag:ignore-end -->
 
+### 14. OLV をフォークした
+
+ここまでの改修（#010 のペットモード、#013 の絵文字の区切り、今日の Agent の登録）は、どれも**本家のクローンの `main` に未コミットで載っているだけ**だった。バックアップは `ConversationalAI/patches/` の diff だけ。しかも今日のタイムゾーンの修正は、どのパッチにも入っていなかった。そこでフォークした。
+
+本家は v2 の書き直しに注力していて、v1 の `main` は 9月から動いていない（`upstream/main` は手元と同じコミット）。フォークしても、本家の更新を取り込む手間はほとんど無い見込み。
+
+#### フォーク（自分のターミナルで）
+
+```bash
+sudo apt install gh
+gh auth login            # GitHub.com → HTTPS → Login with a web browser
+
+cd ~/development/open-llm-vtuber-lab/Open-LLM-VTuber
+gh repo fork --remote --default-branch-only
+cd ~/development/open-llm-vtuber-lab/Open-LLM-VTuber-Web
+gh repo fork --remote --default-branch-only
+git remote -v
+```
+
+クローンの中で `--remote` を付けると、今の `origin`（本家）が `upstream` に改名され、フォークが新しい `origin` になる。
+
+#### コミットしないものを除外する
+
+```bash
+cd ~/development/open-llm-vtuber-lab/Open-LLM-VTuber
+cat >> .git/info/exclude <<'X'
+/src/open_llm_vtuber/agent/agents/midori_agent.py
+/src/open_llm_vtuber/agent/agents/build_log_rag.py
+/conf.yaml.before-*
+/qwen3-original.Modelfile
+X
+```
+
+`midori_agent.py` と `build_log_rag.py` はこのリポジトリへのシンボリックリンクで、自分のホームへの絶対パスを指している。**正はこのリポジトリのまま**にする。
+
+#### コミット前に直したこと
+
+factory の先頭で `from .agents.midori_agent import MidoriAgent` していると、シンボリックリンクの無い clone では、**どの Agent を選んでも import で落ちる。** `midori_agent` を選んだときだけ読み込むように変えた（Mem0 の分岐と同じ形）。
+
+```python
+            agent_class = BasicMemoryAgent
+            if conversation_agent_choice == "midori_agent":
+                from .agents.midori_agent import MidoriAgent
+
+                agent_class = MidoriAgent
+```
+
+#### コミットと push
+
+パッチと作業ツリーの差分が一致するかを確かめてから、話題ごとにコミットした。
+
+```bash
+diff <(git diff src/) ~/Develop/project-physical-ai/ConversationalAI/patches/open-llm-vtuber-web-linux-pet-mode.patch
+git fetch origin && git merge-base --is-ancestor origin/main HEAD && echo "fast-forward OK"
+git push origin main
+git branch -u origin/main
+```
+
+| リポジトリ | コミット | 内容 |
+|---|---|---|
+| [Open-LLM-VTuber](https://github.com/emboss369/Open-LLM-VTuber) | `3c5b6a9` | 絵文字だけの断片を直前の文に戻す（#013） |
+| | `21a5d49` | `mcp-server-time` を `Asia/Tokyo` に |
+| | `47b1cc9` | `midori_agent` の登録（遅延 import） |
+| [Open-LLM-VTuber-Web](https://github.com/emboss369/Open-LLM-VTuber-Web) | `e70eb42` | Linux でペットモードのクリック透過を機能させる（#010） |
+| | `da93692` | `package-lock.json` の version を 1.2.1 に揃える |
+
+`patches/` は履歴として残し、今後は更新しない。ペットモードの修正（`e70eb42`）は本家への PR の候補。ただし、本家は v1 への機能 PR を控えるよう求めているので、バグ修正として受け付けてもらえるかを先に確かめる。
+
 ---
 
 ## 変更したファイル
@@ -1059,9 +1127,9 @@ LLM は `- [ ]` を「やった」と読んだ。断片を作るときに `- [ ]
 
 | 場所 | 内容 |
 |---|---|
-| OLV `mcp_servers.json` | `Asia/Tokyo` |
+| OLV `mcp_servers.json` | `Asia/Tokyo`（フォークにコミット済み） |
 | OLV `conf.yaml` | `ollama_llm.model: 'qwen3-vl-32k'`（元は `conf.yaml.before-32k`） |
-| OLV `src/.../agent_factory.py`, `config_manager/agent.py` | `midori_agent` の登録（パッチと同じ内容） |
+| OLV `src/.../agent_factory.py`, `config_manager/agent.py` | `midori_agent` の登録。フォーク [emboss369/Open-LLM-VTuber](https://github.com/emboss369/Open-LLM-VTuber) にコミット済み（節14） |
 | OLV `src/.../agents/midori_agent.py`, `build_log_rag.py` | このリポジトリへのシンボリックリンク |
 | Ollama | `qwen3-vl-32k` を作成。Modelfile は `~/ollama-modelfiles/qwen3-vl-32k.Modelfile` |
 | `/etc/systemd/system/ollama.service.d/kv-cache.conf` | `OLLAMA_KV_CACHE_TYPE=q8_0`、`OLLAMA_FLASH_ATTENTION=1`（全モデル共通） |
