@@ -94,6 +94,11 @@ This content uses sample data owned and copyrighted by Live2D Inc.
     「いつか、みどりちゃんに体を！」＝ペルソナ内で唯一、自分を三人称で呼ぶ表現。
     「自分＝みどり／相手＝ドクター」の対応と、この誤り文そのものを反例として
     明記して解消。**ドクター呼びが定着したことを実機で確認済み**
+    → 2026-10-08、長い会話（約30往復）で再発。相手を「みどりちゃん、〜？」と呼び、
+    一度出ると履歴の自分の発言を写して毎ターン繰り返した。ASR が別の AI（Gemini Live）や
+    周囲の会話を拾い、相手がドクターでなかったことも重なった。対策として
+    (A) 口癖を「いつか、わたしにも体を😎！」にしてペルソナから「みどりちゃん」を消し、
+    (B) `midori_agent.py` で履歴を直近10往復に切り、(C) 毎ターン役割の念押しを足した。**実機での再確認は未実施**
 
   **「ドクター」→「師匠」の切り替わりは Build Log #013 で発動を確認済み**
   （実験成功を伝えたら「師匠！めっちゃうれしい😆」と返した）。
@@ -168,8 +173,9 @@ MIT ライセンス・リアルタイム相当の速度・ゼロショット音�
 | サーバー | https://github.com/Aratako/Irodori-TTS-Server （OpenAI TTS API 互換、`localhost:8088`） |
 | モデル | `Aratako/Irodori-TTS-v4-Small`（MIT） |
 | 声 | `voice/sakura_midori.wav`（caption `ボーイッシュな女性の声。さっぱりとした話し方。` / seed `1006` で生成） |
-| 感情制御 | 絵文字7種を人格定義で指定。`conf.yaml` の `remove_special_char: False` が必須 |
-| 注意 | 絵文字は「。」「！」「？」の直前に置く。後ろだと単独チャンクになる（`patches/013-sentence-divider-emoji.patch` で吸収） |
+| 感情制御 | 絵文字を人格定義で指定（#013 で7種、2026-10-08 に 😏🫶🫣👂 を足して11種。いずれも v4-Small の EMOJI_ANNOTATIONS.md に定義あり）。`conf.yaml` の `remove_special_char: False` が必須 |
+| 注意 | ~~絵文字は「。」「！」「？」の直前に置く~~ → 2026-10-08 に**文頭に置く**へ変更（「😎いつか、わたしにも体を！」）。末尾だと演技に反映されなかったため。守られなかった分はフォークの `emoji_to_front`（`conf.yaml`）が TTS 直前に文頭へ移し、文の区切りで単独になった絵文字は**次の**文の頭に付く（#013 の `patches/013-sentence-divider-emoji.patch` は直前の文に付けていた）。応答の最後に単独で残った絵文字は捨てる |
+| 表情との連動 | フォークの `expression_emoji_map`（`sakura_midori.yaml` の `tts_preprocessor_config`）で、`[joy]` などの表情タグを TTS 直前に絵文字へ置き換える（joy→😆 / smirk→😏 / surprise→😲 / sadness→😟 / fear→😰 / anger→😠 / disgust→🙄 / think→🤔、neutral は無し）。**LLM がタグの直後に自分で絵文字を付けた文には足さない**（「[joy] 😎いつか…」は 😎 のまま）。付け忘れた文だけタグから補う |
 
 以下は採用前に比較した候補：
 
