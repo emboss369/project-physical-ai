@@ -2,7 +2,8 @@
 
 BasicMemoryAgent を継承し、LLM に呼ぶか任せると呼ばれないツールを、コード側で先に実行する。
 
-- 毎ターン、今日の日付をシステムプロンプトに足す
+- 毎ターン、今日の日付と役割の念押し（自分＝佐倉みどり、相手＝ドクター）をシステムプロンプトに足す
+- 毎ターン、会話履歴を直近10往復に切る
 - 発話に「Build Log」「前に」「〜だっけ」などが入っていたら、build-log/ を BM25 で検索し
   （build_log_rag.py）、関係する断片をそのターンだけシステムプロンプトに足す
 - 発話に「ニュース」「検索」「調べ」などが入っていたら、LLM で検索語を作り、
@@ -25,6 +26,16 @@ from .basic_memory_agent import BasicMemoryAgent
 from .build_log_rag import BuildLogIndex
 from ..input_types import BatchInput
 from ..output_types import SentenceOutput
+
+# 履歴の上限（user/assistant 合わせた件数。10往復）。8B は長い履歴で自分の直前の言い回しを
+# 写し続け、一度「みどりちゃん、〜？」と相手を呼ぶと毎ターン繰り返した。古い履歴を捨てて断ち切る。
+# OLV の会話履歴ファイル（chat_history/）は別管理なので、ここで切っても記録は消えない
+MEMORY_MAX_MESSAGES = 20
+# 毎ターンの役割の念押し。ペルソナの冒頭だけでは、長い会話で相手を「みどり」と呼ぶ混同が出た
+ROLE_REMINDER = (
+    "\nあなたは佐倉みどりで、一人称は「わたし」。いま話しかけてくる相手はドクターで、"
+    "相手は「ドクター」と呼ぶ。"
+)
 
 SEARCH_TRIGGER = re.compile(r"ニュース|検索|調べ|最新|ググ")
 SEARCH_MAX_RESULTS = 5
@@ -62,9 +73,11 @@ class MidoriAgent(BasicMemoryAgent):
         async def chat_with_context(
             input_data: BatchInput,
         ) -> AsyncIterator[Union[SentenceOutput, Dict[str, Any]]]:
+            self._trim_memory()
             base_system = self._system
             today = datetime.date.today()
             extra = f"\n\n今日は{today:%Y年%-m月%-d日}（{WEEKDAYS[today.weekday()]}）。"
+            extra += ROLE_REMINDER
 
             utterance = _ASR_SPACE.sub("", self._to_text_prompt(input_data))
             if BUILD_LOG_TRIGGER.search(utterance):
@@ -80,6 +93,16 @@ class MidoriAgent(BasicMemoryAgent):
                 self._system = base_system
 
         return chat_with_context
+
+    def _trim_memory(self) -> None:
+        """履歴を直近 MEMORY_MAX_MESSAGES 件に切る。先頭は user の発話にそろえる。"""
+        if len(self._memory) <= MEMORY_MAX_MESSAGES:
+            return
+        kept = self._memory[-MEMORY_MAX_MESSAGES:]
+        while kept and kept[0]["role"] != "user":
+            kept = kept[1:]
+        logger.info(f"MidoriAgent: 履歴を {len(self._memory)} → {len(kept)} 件に切った")
+        self._memory = kept
 
     def _build_log_context(self, utterance: str) -> str:
         """Build Log から関係する断片を探して、システムプロンプトに足す文を返す。"""
