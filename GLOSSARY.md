@@ -59,6 +59,7 @@
 | **フィジカルAI** | — | 口語・タイトル向けのカタカナ表記 |
 | **VLA** | ブイエルエー | Vision-Language-Action |
 | **ACT** | アクト / エーシーティー | 模倣学習の手法（Action Chunking Transformer） |
+| **SmolVLA** | スモールブイエルエー / スモールVLA / スモルVLA | Hugging Face の小型 VLA（450M）。読みは「スモール・ブイ・エル・エー」。Build Log #018 から |
 | **模倣学習** | もほう学習 | imitation learning |
 | **強化学習** | — | reinforcement learning |
 | **Sim-to-Real** | シミュトゥリアル / シミュ・トゥ・リアル | シミュレータ→実機の転移 |
