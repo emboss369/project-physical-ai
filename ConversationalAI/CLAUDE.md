@@ -172,7 +172,7 @@ MIT ライセンス・リアルタイム相当の速度・ゼロショット音�
 |---|---|
 | サーバー | https://github.com/Aratako/Irodori-TTS-Server （OpenAI TTS API 互換、`localhost:8088`） |
 | モデル | `Aratako/Irodori-TTS-v4-Small`（MIT） |
-| 声 | `voice/sakura_midori.wav`（caption `ボーイッシュな女性の声。さっぱりとした話し方。` / seed `1006` で生成） |
+| 声 | `voice/sakura_midori.wav`（caption `やわらかい10代女性の声。小さめの声量で、そっと寄り添うように優しく話す。` / seed `2202` で生成。Build Log #020 で #013 の v1（caption `ボーイッシュな女性の声。さっぱりとした話し方。` / seed `1006`）から差し替え。経緯は `voice/README.md`） |
 | 感情制御 | 絵文字を人格定義で指定（#013 で7種、2026-10-08 に 😏🫶🫣👂 を足して11種。いずれも v4-Small の EMOJI_ANNOTATIONS.md に定義あり）。`conf.yaml` の `remove_special_char: False` が必須 |
 | 注意 | ~~絵文字は「。」「！」「？」の直前に置く~~ → 2026-10-08 に**文頭に置く**へ変更（「😎いつか、わたしにも体を！」）。末尾だと演技に反映されなかったため。守られなかった分はフォークの `emoji_to_front`（`conf.yaml`）が TTS 直前に文頭へ移し、文の区切りで単独になった絵文字は**次の**文の頭に付く（#013 の `patches/013-sentence-divider-emoji.patch` は直前の文に付けていた）。応答の最後に単独で残った絵文字は捨てる |
 | 表情との連動 | フォークの `expression_emoji_map`（`sakura_midori.yaml` の `tts_preprocessor_config`）で、`[joy]` などの表情タグを TTS 直前に絵文字へ置き換える（joy→😆 / smirk→😏 / surprise→😲 / sadness→😟 / fear→😰 / anger→😠 / disgust→🙄 / think→🤔、neutral は無し）。**LLM がタグの直後に自分で絵文字を付けた文には足さない**（「[joy] 😎いつか…」は 😎 のまま）。付け忘れた文だけタグから補う |
