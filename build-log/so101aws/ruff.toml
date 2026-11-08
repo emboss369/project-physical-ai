@@ -1,0 +1,10 @@
+# ルールは ruff の既定のまま。import の並べ方が、ruff を実行するフォルダによって変わらないように、
+# 自分たちのモジュールを明示する（edge/・cloud/agent/・scripts/ はそれぞれ単体のフォルダとして import している）
+src = ["edge", "cloud/agent", "scripts"]
+
+[lint.isort]
+known-first-party = [
+  "protocol", "runner", "edge_agent", "mqtt_transport",
+  "tools", "prompts", "handler",
+  "send_cmd",
+]

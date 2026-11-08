@@ -1,0 +1,30 @@
+# 証明書・秘密鍵（IoT Core のデバイス証明書、CSR、Amazon Root CA を含む）
+certs/
+*.pem
+*.key
+*.csr
+*.crt
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+crash.*.log
+*.tfvars
+!*.tfvars.example
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# エッジの実設定（エンドポイント・パスを含む）
+edge/config.yaml
+
+# Lambda のビルド成果物
+*.zip
+cloud/**/package/
+
+# Lambda のビルド
+build/
