@@ -1,0 +1,213 @@
+<mxfile host="Claude Code" type="device">
+  <diagram id="slide_extra_prev_lt" name="slide_extra_prev_lt">
+    <mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="&lt;b&gt;前回話せなかった1枚：フィジカルAIの「学習」を AWS Spot で使い捨てにする&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:12px&quot; color=&quot;#545B64&quot;&gt;lerobot-aws-infra ─ Terraform ＋ EC2 Spot ＋ S3 で LeRobot の学習を回す（GitHub 公開）&lt;/font&gt;" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;fontColor=#232F3E;fontSize=18;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="20" y="4" width="1060" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="keymsg" value="&lt;b&gt;GPU は自宅に1枚。足りなくなったら、クラウドで使い捨てで借りる&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#232F3E;strokeColor=none;fontColor=#FFFFFF;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="10" width="490" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="local" value="ローカル PC" style="outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;shape=mxgraph.aws4.group;verticalAlign=top;align=left;spacingLeft=30;fontStyle=1;grIcon=mxgraph.aws4.group_corporate_data_center;strokeColor=#7D8998;fillColor=none;fontColor=#5A6C86;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="20" y="250" width="150" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="local_txt" value="Terraform CLI&lt;br&gt;AWS CLI&lt;br&gt;&lt;br&gt;&lt;font color=&quot;#ED7100&quot;&gt;&lt;b&gt;train_and_destroy.sh&lt;/b&gt;&lt;/font&gt;&lt;br&gt;apply → 学習完了を検知&lt;br&gt;→ destroy まで自動" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;fontColor=#232F3E;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="30" y="285" width="135" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="cloud" value="AWS Cloud　&lt;font color=&quot;#147EBA&quot;&gt;Region: us-east-1&lt;/font&gt;" style="outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;shape=mxgraph.aws4.group;verticalAlign=top;align=left;spacingLeft=30;fontStyle=1;grIcon=mxgraph.aws4.group_aws_cloud;strokeColor=#232F3E;fillColor=none;fontColor=#232F3E;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="190" y="64" width="480" height="540" as="geometry" />
+        </mxCell>
+        <mxCell id="boot" value="&lt;b&gt;bootstrap/&lt;/b&gt;　永続：別の state・&lt;font color=&quot;#1D8102&quot;&gt;&lt;b&gt;prevent_destroy&lt;/b&gt;&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F2F8EC;strokeColor=#7AA116;dashed=1;verticalAlign=top;align=left;spacingLeft=8;fontSize=11;fontColor=#232F3E;" vertex="1" parent="1">
+          <mxGeometry x="205" y="98" width="450" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="s3state" value="&lt;b&gt;S3&lt;/b&gt;&lt;br&gt;tfstate" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;fillColor=#7AA116;resIcon=mxgraph.aws4.s3;" vertex="1" parent="1">
+          <mxGeometry x="245" y="130" width="52" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="ddb" value="&lt;b&gt;DynamoDB&lt;/b&gt;&lt;br&gt;state ロック" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;fillColor=#C925D1;resIcon=mxgraph.aws4.dynamodb;" vertex="1" parent="1">
+          <mxGeometry x="395" y="130" width="52" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="s3data" value="&lt;b&gt;S3&lt;/b&gt;&lt;br&gt;データセット・&lt;br&gt;チェックポイント" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;fillColor=#7AA116;resIcon=mxgraph.aws4.s3;verticalLabelPosition=middle;labelPosition=right;align=left;verticalAlign=middle;spacingLeft=4;" vertex="1" parent="1">
+          <mxGeometry x="510" y="130" width="52" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="tf" value="&lt;b&gt;terraform/&lt;/b&gt;　使い捨て：&lt;font color=&quot;#D13212&quot;&gt;&lt;b&gt;学習ごとに apply → destroy&lt;/b&gt;&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FDF1EF;strokeColor=#D13212;dashed=1;verticalAlign=bottom;align=left;spacingLeft=8;spacingBottom=4;fontSize=11;fontColor=#232F3E;" vertex="1" parent="1">
+          <mxGeometry x="205" y="285" width="450" height="305" as="geometry" />
+        </mxCell>
+        <mxCell id="ssm" value="&lt;b&gt;Session Manager&lt;/b&gt;&lt;br&gt;SSH ポートは開けない" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;pointerEvents=1;fillColor=#E7157B;shape=mxgraph.aws4.systems_manager_session_manager;" vertex="1" parent="1">
+          <mxGeometry x="240" y="325" width="56" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="ec2" value="&lt;b&gt;EC2 Spot&lt;/b&gt;&lt;br&gt;g4dn.xlarge（T4 16GB）" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;fillColor=#ED7100;resIcon=mxgraph.aws4.spot_instance;" vertex="1" parent="1">
+          <mxGeometry x="390" y="320" width="64" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="role" value="&lt;b&gt;IAM ロール&lt;/b&gt;（EC2 に付与）&lt;br&gt;必要な S3 操作だけ" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;pointerEvents=1;fillColor=#DD344C;shape=mxgraph.aws4.role;" vertex="1" parent="1">
+          <mxGeometry x="565" y="385" width="60" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="param" value="&lt;b&gt;Parameter Store&lt;/b&gt;&lt;br&gt;hf_token（SecureString）" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;pointerEvents=1;fillColor=#E7157B;shape=mxgraph.aws4.parameter_store;" vertex="1" parent="1">
+          <mxGeometry x="569" y="465" width="48" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="init" value="&lt;b&gt;cloud-init の bash 1本&lt;/b&gt;（Ansible なし）&lt;br&gt;NVIDIA ドライバ・LeRobot を入れる&lt;br&gt;→ &lt;b&gt;自動で再起動&lt;/b&gt;（ドライバを確実に有効化）&lt;br&gt;→ systemd が学習を開始" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fontColor=#232F3E;arcSize=8;align=left;spacingLeft=6;fontSize=10;fillColor=#FFFFFF;strokeColor=#ED7100;" vertex="1" parent="1">
+          <mxGeometry x="222" y="460" width="270" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="hf" value="&lt;b&gt;Hugging Face Hub&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;モデル＝&lt;b&gt;恒久&lt;/b&gt;の置き場所&lt;br&gt;（S3 は resume 用の&lt;b&gt;一時&lt;/b&gt;領域）&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fontColor=#232F3E;arcSize=8;fillColor=#FFF6CC;strokeColor=#E0B400;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="680" y="300" width="120" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="e_boot" value="初回だけ apply" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;endFill=1;fontSize=10;labelBackgroundColor=#FFFFFF;strokeColor=#7AA116;" edge="1" parent="1" source="local" target="boot">
+          <mxGeometry relative="1" as="geometry" x="-0.2">
+            <Array as="points">
+              <mxPoint x="95" y="178" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_apply" value="&lt;b&gt;① 学習ごとに&lt;br&gt;apply&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;endFill=1;fontSize=10;labelBackgroundColor=#FFFFFF;strokeColor=#D13212;strokeWidth=2;exitX=0.5;exitY=1;entryX=0;entryY=0.93;" edge="1" parent="1" source="local" target="tf">
+          <mxGeometry relative="1" as="geometry" x="-0.45">
+            <Array as="points">
+              <mxPoint x="95" y="568" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_ssm" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;endFill=1;fontSize=10;labelBackgroundColor=#FFFFFF;strokeColor=#E7157B;dashed=1;" edge="1" parent="1" source="ssm" target="ec2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_sync" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;endFill=1;fontSize=10;labelBackgroundColor=#FFFFFF;strokeColor=#7AA116;strokeWidth=2;exitX=0.5;exitY=0;entryX=0.5;entryY=1;" edge="1" parent="1" source="ec2" target="s3data">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="422" y="272" />
+              <mxPoint x="536" y="272" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="sync_lbl" value="&lt;b&gt;② 10分ごとに sync&lt;/b&gt;" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;fontColor=#232F3E;fontSize=10;fontColor=#1D8102;" vertex="1" parent="1">
+          <mxGeometry x="430" y="252" width="120" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="e_push" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;endFill=1;fontSize=10;labelBackgroundColor=#FFFFFF;strokeColor=#E0B400;strokeWidth=2;exitX=1;exitY=0.5;entryX=0;entryY=0.58;" edge="1" parent="1" source="ec2" target="hf">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="push_lbl" value="&lt;b&gt;③ 完了で push&lt;/b&gt;" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;fontColor=#232F3E;fontSize=10;fontColor=#8A6D00;" vertex="1" parent="1">
+          <mxGeometry x="470" y="330" width="110" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="e_param" value="トークン" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;endFill=1;fontSize=10;labelBackgroundColor=#FFFFFF;strokeColor=#E7157B;dashed=1;exitX=0;exitY=0.5;entryX=1;entryY=0.85;" edge="1" parent="1" source="param" target="ec2">
+          <mxGeometry relative="1" as="geometry" x="-0.5">
+            <Array as="points">
+              <mxPoint x="510" y="490" />
+              <mxPoint x="510" y="374" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow_t" value="&lt;b&gt;学習1回の流れ&lt;/b&gt;　Spot は&lt;font color=&quot;#D13212&quot;&gt;&lt;b&gt;いつ止められてもいい&lt;/b&gt;&lt;/font&gt;前提で組む" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;fontColor=#232F3E;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="820" y="62" width="760" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="f1" value="terraform apply" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fontColor=#232F3E;arcSize=8;fontSize=10;fillColor=#FFFFFF;strokeColor=#232F3E;" vertex="1" parent="1">
+          <mxGeometry x="830" y="98" width="110" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="f2" value="cloud-init で&lt;br&gt;セットアップ" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fontColor=#232F3E;arcSize=8;fontSize=10;fillColor=#FFFFFF;strokeColor=#ED7100;" vertex="1" parent="1">
+          <mxGeometry x="960" y="98" width="130" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="f3" value="自動で&lt;br&gt;再起動" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fontColor=#232F3E;arcSize=8;fontSize=10;fillColor=#FFFFFF;strokeColor=#ED7100;" vertex="1" parent="1">
+          <mxGeometry x="1110" y="98" width="100" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="f4" value="&lt;b&gt;lerobot-train&lt;/b&gt;&lt;br&gt;10分ごとに S3 へ sync" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fontColor=#232F3E;arcSize=8;fontSize=10;fillColor=#FFF4E5;strokeColor=#ED7100;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="98" width="170" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="f5" value="正常に&lt;br&gt;終わった？" style="rhombus;whiteSpace=wrap;html=1;fontSize=10;fillColor=#FFFFFF;strokeColor=#232F3E;fontColor=#232F3E;" vertex="1" parent="1">
+          <mxGeometry x="1425" y="88" width="145" height="72" as="geometry" />
+        </mxCell>
+        <mxCell id="f6" value="HF Hub へ push&lt;br&gt;→ &lt;b&gt;_COMPLETE&lt;/b&gt; を S3 に" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fontColor=#232F3E;arcSize=8;fontSize=10;fillColor=#E6F4E1;strokeColor=#1D8102;" vertex="1" parent="1">
+          <mxGeometry x="1420" y="200" width="150" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="f7" value="terraform&lt;br&gt;destroy" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fontColor=#232F3E;arcSize=8;fontSize=10;fillColor=#E6F4E1;strokeColor=#1D8102;" vertex="1" parent="1">
+          <mxGeometry x="1270" y="200" width="130" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="f8" value="S3 チェックポイント削除&lt;br&gt;（_COMPLETE 確認後だけ）→ 完了" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fontColor=#232F3E;arcSize=8;fontSize=10;fillColor=#E6F4E1;strokeColor=#1D8102;" vertex="1" parent="1">
+          <mxGeometry x="1030" y="200" width="200" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="f9" value="&lt;b&gt;Spot 中断&lt;/b&gt;（完了マーカーなし）→ 30秒待って再 apply（最大5回）&lt;br&gt;→ S3 のチェックポイントから &lt;b&gt;--resume=true&lt;/b&gt; で続き" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fontColor=#232F3E;arcSize=8;fontSize=10;fillColor=#FDF1EF;strokeColor=#D13212;" vertex="1" parent="1">
+          <mxGeometry x="960" y="285" width="440" height="46" as="geometry" />
+        </mxCell>
+        <mxCell id="ef_f1" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;endFill=1;fontSize=10;labelBackgroundColor=#FFFFFF;strokeColor=#232F3E;" edge="1" parent="1" source="f1" target="f2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ef_f2" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;endFill=1;fontSize=10;labelBackgroundColor=#FFFFFF;strokeColor=#232F3E;" edge="1" parent="1" source="f2" target="f3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ef_f3" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;endFill=1;fontSize=10;labelBackgroundColor=#FFFFFF;strokeColor=#232F3E;" edge="1" parent="1" source="f3" target="f4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ef_f4" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;endFill=1;fontSize=10;labelBackgroundColor=#FFFFFF;strokeColor=#232F3E;" edge="1" parent="1" source="f4" target="f5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ef_ok" value="正常終了" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;endFill=1;fontSize=10;labelBackgroundColor=#FFFFFF;strokeColor=#1D8102;" edge="1" parent="1" source="f5" target="f6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ef_67" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;endFill=1;fontSize=10;labelBackgroundColor=#FFFFFF;strokeColor=#1D8102;" edge="1" parent="1" source="f6" target="f7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ef_78" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;endFill=1;fontSize=10;labelBackgroundColor=#FFFFFF;strokeColor=#1D8102;" edge="1" parent="1" source="f7" target="f8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ef_int" value="&lt;b&gt;中断&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;endFill=1;fontSize=10;labelBackgroundColor=#FFFFFF;strokeColor=#D13212;exitX=0.118;exitY=1;entryX=0.659;entryY=0;" edge="1" parent="1" source="f4" target="f9">
+          <mxGeometry relative="1" as="geometry" x="0.75">
+            <Array as="points">
+              <mxPoint x="1250" y="270" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ef_loop" value="再 apply" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;endFill=1;fontSize=10;labelBackgroundColor=#FFFFFF;strokeColor=#D13212;exitX=0;exitY=0.5;entryX=0.5;entryY=1;" edge="1" parent="1" source="f9" target="f1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="885" y="308" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="design" value="&lt;b&gt;&lt;font style=&quot;font-size:13px&quot;&gt;設計判断 5つ&lt;/font&gt;&lt;/b&gt;　&lt;font color=&quot;#545B64&quot;&gt;壊れたときにどうなるかを先に考える&lt;/font&gt;&lt;br&gt;&lt;b&gt;①&lt;/b&gt; サーバーは使い捨て：パッチを当てず、毎回作り直す&lt;br&gt;&lt;b&gt;②&lt;/b&gt; 消えて困るものは外へ：チェックポイント → S3、モデル → HF Hub&lt;br&gt;&lt;b&gt;③&lt;/b&gt; 永続と使い捨てで state を分ける：bootstrap/ ＋ prevent_destroy&lt;br&gt;&lt;b&gt;④&lt;/b&gt; destroy と S3 削除を紐付けない：&lt;b&gt;_COMPLETE&lt;/b&gt; を確認できたときだけ消す&lt;br&gt;　&lt;font color=&quot;#1D8102&quot;&gt;&lt;b&gt;「消し忘れて少し残る」方が「消してはいけないものを消す」よりマシ&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;b&gt;⑤&lt;/b&gt; SSH より SSM：ポートを開けない。秘密は Parameter Store" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fontColor=#232F3E;arcSize=8;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fontSize=12;fillColor=#F8F9FA;strokeColor=#232F3E;arcSize=3;" vertex="1" parent="1">
+          <mxGeometry x="820" y="348" width="380" height="252" as="geometry" />
+        </mxCell>
+        <mxCell id="mines" value="&lt;b&gt;&lt;font style=&quot;font-size:13px&quot; color=&quot;#D13212&quot;&gt;実際に踏んだ地雷 10個&lt;/font&gt;&lt;/b&gt;　&lt;font color=&quot;#545B64&quot;&gt;うち AWS 由来の4つ&lt;/font&gt;&lt;br&gt;&lt;b&gt;1.&lt;/b&gt; Spot の容量不足（g6.xlarge）→ placement score で AZ を選び直し、g4dn.xlarge へ&lt;br&gt;&lt;b&gt;2.&lt;/b&gt; GPU Spot のクォータが &lt;b&gt;4 vCPU&lt;/b&gt; ＝ ちょうど1台分。作り直し直後は失敗 → 待って再実行&lt;br&gt;&lt;b&gt;3.&lt;/b&gt; IAM インスタンスプロファイルの反映待ち → provider の自動リトライで吸収&lt;br&gt;&lt;b&gt;4.&lt;/b&gt; &lt;b&gt;`|| true`&lt;/b&gt; で S3 同期が黙って失敗（バケットが実在しなかった）→ bootstrap/ で作る設計に&lt;br&gt;&lt;font color=&quot;#545B64&quot;&gt;ほか：awscli のパッケージ・conda の利用規約・Python 3.12・extras 名・ドライバの再起動・ホームの権限&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fontColor=#232F3E;arcSize=8;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fontSize=12;fillColor=#FDF1EF;strokeColor=#D13212;arcSize=3;" vertex="1" parent="1">
+          <mxGeometry x="1215" y="348" width="365" height="252" as="geometry" />
+        </mxCell>
+        <mxCell id="life_t" value="&lt;b&gt;フィジカルAIを作って動かす流れ&lt;/b&gt;　─ どこをクラウドに出すか" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;fontColor=#232F3E;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="30" y="616" width="900" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="l1" value="&lt;b&gt;① データ収集&lt;/b&gt;&lt;br&gt;自宅で SO-101 をテレオペ&lt;br&gt;（リーダー → フォロワー、カメラ2台）" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fontColor=#232F3E;arcSize=8;fontSize=11;fillColor=#F2F3F3;strokeColor=#7D8998;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="30" y="648" width="280" height="92" as="geometry" />
+        </mxCell>
+        <mxCell id="l2" value="&lt;b&gt;② 学習&lt;/b&gt;&lt;br&gt;&lt;b&gt;AWS EC2 Spot&lt;/b&gt; で GPU を使い捨てで借りる&lt;br&gt;（普段は自宅の GPU）" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fontColor=#232F3E;arcSize=8;fontSize=11;fillColor=#FFF4E5;strokeColor=#ED7100;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="340" y="648" width="280" height="92" as="geometry" />
+        </mxCell>
+        <mxCell id="l3" value="&lt;b&gt;③ モデル置き場&lt;/b&gt;&lt;br&gt;Hugging Face Hub" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fontColor=#232F3E;arcSize=8;fontSize=11;fillColor=#FFF6CC;strokeColor=#E0B400;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="650" y="648" width="280" height="92" as="geometry" />
+        </mxCell>
+        <mxCell id="l4" value="&lt;b&gt;④ 推論・実行&lt;/b&gt;&lt;br&gt;自宅 PC で SmolVLA が&lt;br&gt;カメラを見て関節を動かす" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fontColor=#232F3E;arcSize=8;fontSize=11;fillColor=#E8F2FA;strokeColor=#147EBA;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="960" y="648" width="280" height="92" as="geometry" />
+        </mxCell>
+        <mxCell id="l5" value="&lt;b&gt;⑤ 判断&lt;/b&gt;&lt;br&gt;&lt;b&gt;AWS Bedrock&lt;/b&gt;（Claude）が日本語から&lt;br&gt;タスク名を選ぶ → &lt;b&gt;IoT Core&lt;/b&gt; で自宅へ" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fontColor=#232F3E;arcSize=8;fontSize=11;fillColor=#E5F6F3;strokeColor=#01A88D;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1270" y="648" width="280" height="92" as="geometry" />
+        </mxCell>
+        <mxCell id="el_l1l2" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;endFill=1;fontSize=10;labelBackgroundColor=#FFFFFF;strokeColor=#545B64;strokeWidth=2;" edge="1" parent="1" source="l1" target="l2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="el_l2l3" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;endFill=1;fontSize=10;labelBackgroundColor=#FFFFFF;strokeColor=#545B64;strokeWidth=2;" edge="1" parent="1" source="l2" target="l3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="el_l3l4" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;endFill=1;fontSize=10;labelBackgroundColor=#FFFFFF;strokeColor=#545B64;strokeWidth=2;" edge="1" parent="1" source="l3" target="l4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="el_l5l4" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;endArrow=block;endFill=1;fontSize=10;labelBackgroundColor=#FFFFFF;strokeColor=#545B64;strokeWidth=2;" edge="1" parent="1" source="l5" target="l4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="prev" value="▲ 前回の LT（この1枚）" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ED7100;strokeColor=none;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="340" y="752" width="280" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="now" value="▲ 今回の LT　クラウドが「何をするか」を決め、エッジが動かす" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#147EBA;strokeColor=none;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="960" y="752" width="590" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="band" value="&lt;b&gt;前回＝クラウドで鍛える（学習を借りる）　→　今回＝クラウドで判断し、自宅のフィジカルAIが動く&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#232F3E;strokeColor=none;fontColor=#FFFFFF;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="20" y="800" width="1560" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="src" value="出典：github.com/emboss369/lerobot-aws-infra（docs/overview-blog.md・docs/architecture.drawio）。アイコンは AWS Architecture Icons（draw.io 同梱）" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;fontColor=#232F3E;fontSize=10;fontColor=#545B64;" vertex="1" parent="1">
+          <mxGeometry x="20" y="852" width="1560" height="22" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
