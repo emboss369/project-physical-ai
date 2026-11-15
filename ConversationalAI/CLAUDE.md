@@ -8,9 +8,10 @@ Open-LLM-VTuber をベースにした、Project Physical AI の相棒AIキャラ
 |---|---|
 | `sakura_midori.yaml` | 佐倉みどりのキャラクター設定。**ここが正**で、Open-LLM-VTuber 側の `characters/sakura_midori.yaml` はここへのシンボリックリンク |
 | `sakura_midori.v1-full.yaml` | 長文版ペルソナ（1,683字／1,246トークン）の退避。Build Log #012 で短縮版（348字／260トークン）に差し替えた際のバックアップ。現行は絵文字ルール等を足して777字。人格が薄いと感じたらここから1行ずつ戻す |
-| `voice/` | 佐倉みどりのリファレンス音声（Irodori-TTS のクローン元）。**ここが正**で、Irodori-TTS-Server 側の `voices/sakura_midori.wav` はここへのシンボリックリンク。出どころは `voice/README.md` |
+| `voice/` | 佐倉みどりのリファレンス音声（Irodori-TTS のクローン元）。**ここが正**で、Irodori-TTS-Server 側の `voices/sakura_midori.wav` はここへのシンボリックリンク。出どころは `voice/README.md`。`voice/batch-tts.sh` はテキストファイル1行につき1本の WAV を Irodori-TTS-Server で作る一括生成スクリプト（既定の出力先 `~/development/ComfyUI/output/WAV/midori-ptn-NNN.wav`） |
 | `agent/midori_agent.py`<br>`agent/build_log_rag.py` | 自作 Agent（Build Log #017）。日付の注入、「ニュース」「検索」等での Web 事前検索、「Build Log」「前に」「〜だっけ」等での `build-log/` 検索（文字 bigram の BM25、埋め込みモデル不要）。**ここが正**で、本体の `src/open_llm_vtuber/agent/agents/` 配下の同名ファイルはここへのシンボリックリンク。Build Log 検索は単体でも試せる：`python agent/build_log_rag.py "検索語"`。登録用の本体改修は `patches/017-midori-agent.patch` |
 | `patches/` | 本家 Open-LLM-VTuber に加えた改修の diff バックアップ。**フォーク後は履歴用**（正はフォーク） |
+| `video/segment.py`<br>`video/compose.py` | 会話動画の後合成用。OBS 録画の佐倉みどり専用トラックから発話区間を `seg_NNN.wav` ＋ `segments.csv` に切り出し（`segment.py`）、リップシンク動画 `seg_NNN.mp4` を録画と同じ長さの1本に並べる（`compose.py`。隙間はブルーバック、前後はブルーバックからフェード）。Camtasia では録画と一緒に 0:00 に置き、ブルーバックを抜く |
 | `start-midori.sh` | 起動スクリプト。TTS → LLM 事前ロード → バックエンド → Electron を一発で立ち上げる（`--check` / `--no-app` / `--no-warm`） |
 
 `sakura_midori.yaml` を編集したら、**必ずパースを通してから起動する**（Build Log #012 で

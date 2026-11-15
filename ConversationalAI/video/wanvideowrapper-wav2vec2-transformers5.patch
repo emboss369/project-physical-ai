@@ -1,0 +1,96 @@
+diff --git a/multitalk/wav2vec2.py b/multitalk/wav2vec2.py
+index be5444c..6985920 100644
+--- a/multitalk/wav2vec2.py
++++ b/multitalk/wav2vec2.py
+@@ -26,6 +26,31 @@ class Wav2Vec2Model(Wav2Vec2Model):
+     def __init__(self, config: Wav2Vec2Config):
+         super().__init__(config)
+ 
++    def _run_encoder(self, hidden_states, attention_mask, output_attentions, output_hidden_states):
++        # transformers v5 の Wav2Vec2Encoder は output_hidden_states を無視して hidden_states を返さない
++        # (kijai/ComfyUI-WanVideoWrapper#2052)。v4 が返せばそれを使い、返さなければ各層のフックで集める。
++        collected, hooks = [hidden_states], []
++        if output_hidden_states:
++            hooks = [layer.register_forward_hook(
++                         lambda m, i, o: collected.append(o[0] if isinstance(o, tuple) else o))
++                     for layer in self.encoder.layers]
++        try:
++            encoder_outputs = self.encoder(
++                hidden_states,
++                attention_mask=attention_mask,
++                output_attentions=output_attentions,
++                output_hidden_states=output_hidden_states,
++                return_dict=True,
++            )
++        finally:
++            for h in hooks:
++                h.remove()
++
++        all_hidden_states = getattr(encoder_outputs, "hidden_states", None)
++        if output_hidden_states and all_hidden_states is None:
++            all_hidden_states = tuple(collected)
++        return encoder_outputs.last_hidden_state, all_hidden_states, getattr(encoder_outputs, "attentions", None)
++
+     def forward(
+         self,
+         input_values,
+@@ -58,25 +83,19 @@ class Wav2Vec2Model(Wav2Vec2Model):
+             hidden_states, mask_time_indices=mask_time_indices, attention_mask=attention_mask
+         )
+ 
+-        encoder_outputs = self.encoder(
+-            hidden_states,
+-            attention_mask=attention_mask,
+-            output_attentions=output_attentions,
+-            output_hidden_states=output_hidden_states,
+-            return_dict=return_dict,
++        hidden_states, all_hidden_states, attentions = self._run_encoder(
++            hidden_states, attention_mask, output_attentions, output_hidden_states
+         )
+ 
+-        hidden_states = encoder_outputs[0]
+-
+         if self.adapter is not None:
+             hidden_states = self.adapter(hidden_states)
+ 
+         if not return_dict:
+-            return (hidden_states, ) + encoder_outputs[1:]
++            return tuple(v for v in (hidden_states, all_hidden_states, attentions) if v is not None)
+         return BaseModelOutput(
+             last_hidden_state=hidden_states,
+-            hidden_states=encoder_outputs.hidden_states,
+-            attentions=encoder_outputs.attentions,
++            hidden_states=all_hidden_states,
++            attentions=attentions,
+         )
+ 
+ 
+@@ -120,23 +139,17 @@ class Wav2Vec2Model(Wav2Vec2Model):
+             hidden_states, mask_time_indices=mask_time_indices, attention_mask=attention_mask
+         )
+ 
+-        encoder_outputs = self.encoder(
+-            hidden_states,
+-            attention_mask=attention_mask,
+-            output_attentions=output_attentions,
+-            output_hidden_states=output_hidden_states,
+-            return_dict=return_dict,
++        hidden_states, all_hidden_states, attentions = self._run_encoder(
++            hidden_states, attention_mask, output_attentions, output_hidden_states
+         )
+ 
+-        hidden_states = encoder_outputs[0]
+-
+         if self.adapter is not None:
+             hidden_states = self.adapter(hidden_states)
+ 
+         if not return_dict:
+-            return (hidden_states, ) + encoder_outputs[1:]
++            return tuple(v for v in (hidden_states, all_hidden_states, attentions) if v is not None)
+         return BaseModelOutput(
+             last_hidden_state=hidden_states,
+-            hidden_states=encoder_outputs.hidden_states,
+-            attentions=encoder_outputs.attentions,
++            hidden_states=all_hidden_states,
++            attentions=attentions,
+         )
