@@ -9,7 +9,7 @@
 | シリーズ | 媒体 | 中身 | 頻度 | 最新の号数 |
 |---|---|---|---|---|
 | **Build Log** | GitHub | 日次記録。全部ここに積む | 毎日（軽く） | build-log-NNN.mdのファイル名で自明（更新不要） |
-| **Road to Folding a T-shirt** | YouTube | 本編。SO-101との格闘、North Starへの前進 | 進んだとき | #0（未公開） |
+| **Road to Folding a T-shirt** | YouTube | 本編。SO-101との格闘、North Starへの前進 | 進んだとき | #1 |
 | **Failure Log** | YouTube | 失敗だけで終わった回の逃げ道 | 詰まったとき | #0（未公開） |
 | **Physical AI 研究ノート** | YouTube | 気づき・勉強会・ニュース・論文・雑談 | 週1〜2 | #2 |
 

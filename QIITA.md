@@ -78,7 +78,7 @@ curl -s -X POST \
 `@[youtube](VIDEO_ID)`のような専用記法は**存在しない**（一度これで投稿し、埋め込まれず壊れたリンクになった実例あり）。Qiita公式の埋め込み方法は、iframeタグをそのまま本文（Markdown）に書く方式。
 
 ```html
-<iframe width="560" height="315" src="https://www.youtube.com/embed/VIDEO_ID" title="YouTube video player" style="border:0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-origin" loading="lazy" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/VIDEO_ID" title="YouTube video player" style="border:0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe>
 ```
 
 `VIDEO_ID`は`https://youtu.be/VIDEO_ID`または`https://www.youtube.com/watch?v=VIDEO_ID`のIDの部分。
